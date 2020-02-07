@@ -67,7 +67,7 @@ class NetCacheClient:
             sys.exit()
 
         for i in range(self.n_servers):
-            self.servers.append("10.0.0." + str(i+1));
+            self.servers.append("10.0.0." + str(i+1))
 
     # return the right node who contains the given key - our implementation
     # is based on client side partitioning i.e the client directly sends
