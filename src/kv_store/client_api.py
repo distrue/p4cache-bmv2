@@ -192,7 +192,9 @@ class NetCacheClient:
             self.udps.send(msg)
 
             reply = self.udps.recv(1024)
+            print("receive server's report")
             output.write(reply.decode("utf-8"))
+            print("write output")
 
         cnt = 0
         for latency in self.latencies:
