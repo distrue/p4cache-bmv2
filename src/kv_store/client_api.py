@@ -188,10 +188,11 @@ class NetCacheClient:
         for server in self.servers:
             msg = build_message(NETCACHE_METRICS_REPORT, "")
 
-            self.udps.connect((server, self.port))
-            self.udps.send(msg)
+            tcps = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            tcps.connect((server, self.port))
+            tcps.send(msg)
 
-            reply = self.udps.recv(1024)
+            reply = tcps.recv(1024)
             print("receive server's report")
             output.write(reply.decode("utf-8"))
             print("write output")
