@@ -28,7 +28,7 @@ def main(n_servers, disable_cache, suppress, input_files):
 
         input_file = filepath.split('/')[1].split('.')[0]
 
-        out_file = 'results/{}_{}_{}.txt'.format(input_file, n_servers, x)
+        out_file = 'results/{}_{}_{}_client.txt'.format(input_file, n_servers, x)
         out_fd = open(out_file, 'w')
 
         client.request_metrics_report(output=out_fd)

@@ -294,9 +294,10 @@ class KVServer:
                     "[{}] requests_received = {}".format(self.name, self.requests_cnt),
                     "[{}] throughput = {}\n".format(self.name, throughput)))
 
-                self.udpss.sendto(bytes(data, "utf-8"), addr)
-                if not self.suppress:
-                    print(data)
+                # self.udpss.sendto(bytes(data, "utf-8"), addr)
+                out_file = 'results/{}.txt'.format(self.name)
+                out_fd = open(out_file, 'w')
+                out_fd.write(data)
 
 
             else:
