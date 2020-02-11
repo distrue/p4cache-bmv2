@@ -295,7 +295,7 @@ class KVServer:
                     "[{}] throughput = {}\n".format(self.name, throughput)))
 
                 # self.udpss.sendto(bytes(data, "utf-8"), addr)
-                out_file = 'results/{}.txt'.format(self.name)
+                out_file = '../kv_store/results/{}.txt'.format(self.name)
                 out_fd = open(out_file, 'w')
                 out_fd.write(data)
 
