@@ -188,14 +188,12 @@ class NetCacheClient:
         for server in self.servers:
             msg = build_message(NETCACHE_METRICS_REPORT, "")
 
-            tcps = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            tcps.connect((server, self.port))
-            tcps.send(msg)
+            self.udps.connect((server, self.port))
+            self.udps.send(msg)
 
-            reply = tcps.recv(1024)
-            print("receive server's report")
-            output.write(reply.decode("utf-8"))
-            print("write output")
+            # reply = self.udps.recv(1024)
+            # output.write(reply.decode("utf-8"))
+            print("temporary block udp response; log on server")
 
         cnt = 0
         for latency in self.latencies:
