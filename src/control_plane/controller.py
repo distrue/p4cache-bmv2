@@ -3,6 +3,7 @@ from p4utils.utils.sswitch_API import SimpleSwitchAPI
 from scapy.all import sniff, Packet, Ether, IP, UDP, TCP, BitField, Raw
 from crc import Crc
 
+import socket
 import threading
 import struct
 import random
@@ -69,7 +70,7 @@ class NCacheController(object):
         # create a pool of ids (as much as the total amount of keys)
         # this pool will be used to assign index to keys which will be
         # used to index the cached key counter and the validity register
-        self.ids_pool = range(0, VTABLE_ENTRIES * VTABLE_SLOT_SIZE);
+        self.ids_pool = list( range(0, VTABLE_ENTRIES * VTABLE_SLOT_SIZE) )
 
         # array of bitmap, which marks available slots per cache line
         # as 0 bits and occupied slots as 1 bits
@@ -92,7 +93,7 @@ class NCacheController(object):
         try:
             sock.connect(UNIX_CHANNEL)
         except socket.error as msg:
-            #print('Error: Unable to contact server for cache operation completion')
+            print('Error: Unable to contact server {}'.format(msg))
             return
 
         sock.sendall(CACHE_INSERT_COMPLETE)
@@ -164,9 +165,6 @@ class NCacheController(object):
         for i in range(int(to_remove * n_samples)):
             curr = evict_list[i]
             self.evict(curr[0])
-
-
-
 
     def setup(self):
         if self.cpu_port:
@@ -327,7 +325,7 @@ class NCacheController(object):
     # (seems hacky due to restriction to use python2.7)
     def str_to_int(self, x, int_width=VTABLE_SLOT_SIZE):
         if len(x) > int_width:
-            print "Error: Overflow while converting string to int"
+            print("Error: Overflow while converting string to int")
 
         # add padding with 0x00 if input string size less than int_width
         bytearr = bytearray(int_width - len(x))
@@ -472,4 +470,5 @@ class NCacheController(object):
 
 
 if __name__ == "__main__":
-    controller = NCacheController('s1').main()
+    controller = NCacheController('s1')
+    controller.main()
