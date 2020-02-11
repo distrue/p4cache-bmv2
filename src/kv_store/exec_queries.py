@@ -1,22 +1,21 @@
 from client_api import NetCacheClient
 
+import time
 import numpy as np
 
 
 def main(n_servers, disable_cache, suppress, input_files):
     client = NetCacheClient(n_servers=n_servers, no_cache=disable_cache)
+    total_start = time.time()
 
     for filepath in input_files:
-        sample = []
-
+        query = 0
         with open(filepath) as fp:
             line = fp.readline()
             while line:
-                sample.append(line.strip())
-                line = fp.readline()
-
-        for query in sample:
-            client.read(query, suppress=suppress)
+                query += 1
+                client.read(line.strip(), suppress=suppress)
+                line = fp.readline()            
 
         #print("\n########## SERVER METRICS REPORT ##########")
         #print("########## [{}] ##########\n".format(filepath))
@@ -31,7 +30,8 @@ def main(n_servers, disable_cache, suppress, input_files):
         out_file = 'results/{}_{}_{}_client.txt'.format(input_file, n_servers, x)
         out_fd = open(out_file, 'w')
 
-        client.request_metrics_report(output=out_fd)
+        spend_time = time.time() - total_start
+        client.request_metrics_report(output=out_fd, time=spend_time, query=query)
 
 
 if __name__=="__main__":

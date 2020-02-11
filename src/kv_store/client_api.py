@@ -182,7 +182,7 @@ class NetCacheClient:
         tcps.close()
 
 
-    def request_metrics_report(self, output=sys.stdout):
+    def request_metrics_report(self, output=sys.stdout, time=1, query=0):
         results = []
 
         for server in self.servers:
@@ -202,4 +202,5 @@ class NetCacheClient:
         # calculate average latency in milliseconds
         avg_latency = (cnt / len(self.latencies)) * 1000
 
-        output.write('avg_latency = ' + '{:.3f}'.format(avg_latency))
+        output.write('avg_latency = ' + '{:.3f}\n'.format(avg_latency))
+        output.write('total_throughput = {}\n'.format(query / time))
