@@ -296,8 +296,8 @@ class KVServer:
 
                 # self.udpss.sendto(bytes(data, "utf-8"), addr)
                 out_file = '../kv_store/results/{}.txt'.format(self.name)
-                out_fd = open(out_file, 'w')
-                out_fd.write(data)
+                with open(out_file, 'w') as out_fd:
+                    out_fd.write(data)
 
 
             else:
