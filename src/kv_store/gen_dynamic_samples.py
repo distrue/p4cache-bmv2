@@ -24,20 +24,22 @@ def main(n_servers, n_queries, dynamics):
     # shuffle keys
     shuffle(keys)
 
+    ch = 0
+
     # draw random query items
     while len(sample) < int(n_queries):
         # smaller value is hotter value
         query_index = np.random.zipf(alpha, 1)[0]
-        if dynamics == 1 and ch != len(sample) / REFRESH_INTERVAL:
+        if dynamics == 1 and ch != int(len(sample) / REFRESH_INTERVAL):
             shuffle(keys)
-        ch = len(sample) / REFRESH_INTERVAL
+        ch = int(len(sample) / REFRESH_INTERVAL)
         if query_index <= len(keys):
             if dynamics == 0:
                 tgt = query_index - 1
                 if(tgt < ch * HOT_CHANGE):
                     tgt = len(keys) - 1 - tgt
             if dynamics == 2:
-                tgt = query_index - 1 + ch * HOT_CHANGE
+                tgt = query_index - 1 + int(ch * HOT_CHANGE)
                 tgt %= len(keys)
             else:
                 tgt = query_index - 1
