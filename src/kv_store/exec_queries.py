@@ -12,10 +12,15 @@ def main(n_servers, disable_cache, suppress, input_files):
         query = 0
         with open(filepath) as fp:
             line = fp.readline()
+            cnt = line.split(' ')
             while line:
                 query += 1
-                client.read(line.strip(), suppress=suppress)
-                line = fp.readline()            
+                if(cnt[0] == 'write'):
+                    client.write(cnt[1].strip(), suppress=suppress)
+                else:
+                    client.read(cnt[1].strip(), suppress=suppress)
+                line = fp.readline()  
+                cnt = line.split(' ')          
 
         #print("\n########## SERVER METRICS REPORT ##########")
         #print("########## [{}] ##########\n".format(filepath))

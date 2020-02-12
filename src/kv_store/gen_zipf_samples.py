@@ -1,11 +1,11 @@
-from random import shuffle
+from random import shuffle, random
 
 import numpy as np
 import argparse
 
 DATA_DIR='data/'
 
-def main(n_servers, n_queries, skew):
+def main(n_servers, n_queries, skew, writeRatio):
 
     alpha = 1.0 / (1.0 - skew)
 
@@ -39,14 +39,18 @@ def main(n_servers, n_queries, skew):
 
     with open(sample_file, 'w') as f:
     	for query_item in sample:
-            f.write("%s\n" % query_item)
+            op = 'read'
+            tmp = random()
+            if(tmp <= writeRatio):
+                op = 'write'
+            f.write("{} {}\n".format(op, query_item))
 
 
 
 def check_valid_skew(value):
     ivalue = float(value)
     if ivalue >= 1 or ivalue <= 0:
-        raise argparse.ArgumentTypeError("value should be (0 < skew < 1)")
+        raise argparse.ArgumentTypeError("value should be (0 < x < 1)")
     return ivalue
 
 if __name__=="__main__":
@@ -57,6 +61,8 @@ if __name__=="__main__":
     parser.add_argument('--n-queries', help='number of queries to generate', type=int, required=True)
     parser.add_argument('--skew', help='skewness of the workload (0 < skew < 1)', type=check_valid_skew,
             required=False, default=0.9)
+    parser.add_argument('--wr', help='write ratio of the workload (0 < wr < 1)', type=check_valid_skew,
+            required=False, default=0)
     args = parser.parse_args()
 
-    main(args.n_servers, args.n_queries, args.skew)
+    main(args.n_servers, args.n_queries, args.skew, args.writeRatio)
