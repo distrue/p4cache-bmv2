@@ -156,7 +156,6 @@ control MyIngress(inout headers hdr,
 		valid_stages_num = valid_stages_num + 1;
 	}
 
-
 	action process_array_1() {
 		bit<NETCACHE_VTABLE_SLOT_WIDTH> curr_stage_val;
 		vt1.read(curr_stage_val, (bit<32>) meta.vt_idx);

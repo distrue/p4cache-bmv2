@@ -282,7 +282,7 @@ class KVServer:
 
                 if not self.suppress:
                     print('[{}] Received METRICS_REPORT_REQUEST() from client {}'
-                            .format(self.name, key, addr[0]))
+                            .format(self.name, addr[0]))
 
                 total_elapsed_time = time.time() - self.start_time
                 if total_elapsed_time != 0:
@@ -294,7 +294,10 @@ class KVServer:
                     "[{}] requests_received = {}".format(self.name, self.requests_cnt),
                     "[{}] throughput = {}\n".format(self.name, throughput)))
 
-                self.udpss.sendto(bytes(data, "utf-8"), addr)
+                # self.udpss.sendto(bytes(data, "utf-8"), addr)
+                out_file = '../kv_store/results/{}.txt'.format(self.name)
+                with open(out_file, 'w') as out_fd:
+                    out_fd.write(data)
 
 
             else:
