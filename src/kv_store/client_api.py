@@ -105,7 +105,7 @@ class NetCacheClient:
         self.udps.connect((self.get_node(key), self.port))
         self.udps.send(msg)
 
-        data = self.udps.recv(2048)
+        data = self.udps.recv(1024)
         op = data[0]
 
         latency = time.time() - start_time
@@ -131,7 +131,7 @@ class NetCacheClient:
             self.udps.connect((self.get_node(key), self.port))
             self.udps.send(msg)
 
-            status = self.udps.recv(2048)
+            status = self.udps.recv(1024)
             latency = time.time() - start_time
 
             if status[0] == NETCACHE_KEY_NOT_FOUND:
