@@ -522,7 +522,6 @@ control MyIngress(inout headers hdr,
 						if (meta.cache_valid && hdr.udp.srcPort != NETCACHE_PORT) {
 							vtable_0.apply(); vtable_1.apply(); vtable_2.apply(); vtable_3.apply();
 							vtable_4.apply(); vtable_5.apply(); vtable_6.apply(); vtable_7.apply();
-							vtable_8.apply(); vtable_9.apply(); vtable_10.apply(); vtable_11.apply();
 
 							ret_pkt_to_sender();
 						}
