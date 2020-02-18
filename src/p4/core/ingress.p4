@@ -412,7 +412,7 @@ control MyIngress(inout headers hdr,
 
 	table vtable_7 {
 		key = {
-			meta.vt_bitmap[0:0]: exact;
+			meta.vt_bitmap[1:0]: exact;
 		}
 		actions = {
 			process_array_7;
@@ -425,10 +425,10 @@ control MyIngress(inout headers hdr,
 
 	table vtable_8 {
 		key = {
-			meta.vt_bitmap[0:0]: exact;
+			meta.vt_bitmap[1:0]: exact;
 		}
 		actions = {
-			process_array_7;
+			process_array_8;
 			NoAction;
 		}
 		size = NETCACHE_ENTRIES;
@@ -440,7 +440,7 @@ control MyIngress(inout headers hdr,
 			meta.vt_bitmap[0:0]: exact;
 		}
 		actions = {
-			process_array_7;
+			process_array_9;
 			NoAction;
 		}
 		size = NETCACHE_ENTRIES;
@@ -452,7 +452,7 @@ control MyIngress(inout headers hdr,
 			meta.vt_bitmap[0:0]: exact;
 		}
 		actions = {
-			process_array_7;
+			process_array_10;
 			NoAction;
 		}
 		size = NETCACHE_ENTRIES;
@@ -464,7 +464,7 @@ control MyIngress(inout headers hdr,
 			meta.vt_bitmap[0:0]: exact;
 		}
 		actions = {
-			process_array_7;
+			process_array_11;
 			NoAction;
 		}
 		size = NETCACHE_ENTRIES;
