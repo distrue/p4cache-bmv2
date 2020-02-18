@@ -153,7 +153,7 @@ class KVServer:
             if not self.blocking and len(self.incoming_requests) > 0:
                 netcache_pkt, addr = self.incoming_requests.popleft()
             else:
-                netcache_pkt, addr = self.udpss.recvfrom(1024)
+                netcache_pkt, addr = self.udpss.recvfrom(2048)
 
             # netcache_pkt is an array of bytes belonging to incoming packet's data
             # the data portion of the packet represents the netcache header, so we
@@ -312,7 +312,7 @@ class KVServer:
 
             conn, addr = self.tcpss.accept()
 
-            netcache_pkt = conn.recv(1024)
+            netcache_pkt = conn.recv(2048)
 
             op = netcache_pkt[0]
             seq = netcache_pkt[1:5]
