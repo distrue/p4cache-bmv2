@@ -65,4 +65,4 @@ if __name__=="__main__":
             required=False, default=0)
     args = parser.parse_args()
 
-    main(args.n_servers, args.n_queries, args.skew, args.writeRatio)
+    main(args.n_servers, args.n_queries, args.skew, args.wr)
