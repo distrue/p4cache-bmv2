@@ -48,7 +48,7 @@ crc32_polinomials = [0x04C11DB7, 0xEDB88320, 0xDB710641, 0x82608EDB,
 class NetcacheHeader(Packet):
     name = 'NcachePacket'
     fields_desc = [BitField('op', 0, 8), BitField('seq', 0, 32),
-            BitField('key', 0, 128), BitField('value', 0, 512)]
+            BitField('key', 0, 128), BitField('value', 0, 1024)]
 
 
 class NCacheController(object):
@@ -214,23 +214,30 @@ class NCacheController(object):
     # Memory Management section of 4.4.2 (netcache paper)
     def first_fit(self, key, value_size):
 
-        n_slots = (value_size / (VTABLE_SLOT_SIZE + 1)) + 1
+        # n_slots = (value_size / (VTABLE_SLOT_SIZE + 1)) + 1
         if value_size <= 0:
             return None
         if key in self.key_map:
             return None
 
+        if(value_size >= 512):
+            st, ed, wd = 0, 16384, 8
+        elif(value_size >= 256):
+            st, ed, wd = 16384, 32768, 6
+        else:
+            st, ed, wd = 32768, 65536, 4
 
-        for idx in range(len(self.mem_pool)):
+        for idx in range(st, ed): # len(self.mem_pool) 
             old_bitmap = self.mem_pool[idx]
-            n_zeros = 8 - bin(old_bitmap).count("1")
+            # n_zeros = 8 - bin(old_bitmap).count("1")
 
-            if n_zeros >= n_slots:
+            if old_bitmap == 0:
+                #if n_zeros >= n_slots:
                 cnt = 0
                 bitmap = 0
-                for i in reversed(range(8)):
-                    if cnt >= n_slots:
-                        break
+                for i in reversed(range(wd)):
+                    # if cnt >= n_slots:
+                    #    break
 
                     if not self.bit_is_set(old_bitmap, i):
                         bitmap = bitmap | (1 << i)
@@ -242,7 +249,7 @@ class NCacheController(object):
 
                 self.used_mem_slots += bin(bitmap).count("1")
 
-                return (idx, bitmap)
+                return (idx, bitmap, wd)
 
         return None
 
@@ -282,7 +289,7 @@ class NCacheController(object):
         if mem_info == None:
             return
 
-        vt_index, bitmap = mem_info
+        vt_index, bitmap, wd = mem_info
 
         # keep track of number of bytes of the value written so far
         cnt = 0
@@ -290,14 +297,20 @@ class NCacheController(object):
         # store the value of the key in the vtables of the switch while
         # incrementally storing a part of the value at each value table
         # if the correspoding bit of the bitmap is set
-        for i in range(self.vtables_num):
+        for i in range(wd):
 
-            if self.bit_is_set(bitmap, self.vtables_num - i - 1):
-                partial_val = value[cnt:cnt+VTABLE_SLOT_SIZE]
+            if self.bit_is_set(bitmap, wd - i - 1):
+                if(i >= 6):
+                    jmp = VTABLE_SLOT_SIZE * 8
+                elif(i >= 4):
+                    jmp = VTABLE_SLOT_SIZE * 2
+                else:
+                    jmp = VTABLE_SLOT_SIZE
+                partial_val = value[cnt:cnt+jmp]
                 self.controller.register_write(VTABLE_NAME_PREFIX + str(i),
                         vt_index, self.str_to_int(partial_val))
 
-                cnt += VTABLE_SLOT_SIZE
+                cnt += jmp
 
         # allocate an id from the pool to index the counter and validity register
         # (we take the last element of list because in python list is implemented
@@ -406,8 +419,20 @@ class NCacheController(object):
 
     # used for testing purposes and static population of cache
     def dummy_populate_vtables(self):
-        test_values_l = ["alpha", "beta", "gamma", "delta", "epsilon", "zeta",
-                         "hita", "theta", "yiota", "kappa", "lambda", "meta"]
+        test_values_l = [
+            "addaddaddaddaddaddaddaddaddaddmorealpha", 
+            "addaddaddaddaddaddaddaddaddaddmorebeta", 
+            "addaddaddaddaddaddaddaddaddaddmoregamma", 
+            "addaddaddaddaddaddaddaddaddaddmoredelta", 
+            "addaddaddaddaddaddaddaddaddaddmoreepsilon", 
+            "addaddaddaddaddaddaddaddaddaddmorezeta",
+            "addaddaddaddaddaddaddaddaddaddmorehita", 
+            "addaddaddaddaddaddaddaddaddaddmoretheta", 
+            "addaddaddaddaddaddaddaddaddaddmoreyiota", 
+            "addaddaddaddaddaddaddaddaddaddmorekappa", 
+            "addaddaddaddaddaddaddaddaddaddmorelambda", 
+            "addaddaddaddaddaddaddaddaddaddmoremeta"
+        ]
         test_keys_l = ["one", "two", "three", "four", "five", "six", "seven",
                        "eight", "nine", "ten", "eleven", "twelve"]
         cnt = 0
