@@ -426,75 +426,59 @@ control MyIngress(inout headers hdr,
 						ret_pkt_to_sender();
 
 						bit<8> stages_cnt = 0;
-						bit<16> shift_pos = 0;
-
 
 						if (meta.vt_bitmap[0:0] == 1) {
 							bit<NETCACHE_VTABLE_SLOT_WIDTH_BIG> new_val;
-							new_val = (bit<NETCACHE_VTABLE_SLOT_WIDTH_BIG>) (hdr.netcache.value >> shift_pos);
+							new_val = (bit<NETCACHE_VTABLE_SLOT_WIDTH_BIG>) (hdr.netcache.value[0:256]);
 
 							vt7.write((bit<32>) meta.vt_idx, new_val);
-
-							shift_pos = shift_pos + NETCACHE_VTABLE_SLOT_WIDTH_BIG;
 						}
 
 						if (meta.vt_bitmap[1:1] == 1) {
 							bit<NETCACHE_VTABLE_SLOT_WIDTH_BIG> new_val;
-							new_val = (bit<NETCACHE_VTABLE_SLOT_WIDTH_BIG>) (hdr.netcache.value >> shift_pos);
+							new_val = (bit<NETCACHE_VTABLE_SLOT_WIDTH_BIG>) (hdr.netcache.value[256:512]);
 
 							vt6.write((bit<32>) meta.vt_idx, new_val);
-
-							shift_pos = shift_pos + NETCACHE_VTABLE_SLOT_WIDTH_BIG;
 						}
 
 						if (meta.vt_bitmap[2:2] == 1) {
 							bit<NETCACHE_VTABLE_SLOT_WIDTH_MID> new_val;
-							new_val = (bit<NETCACHE_VTABLE_SLOT_WIDTH_MID>) (hdr.netcache.value >> shift_pos);
+							new_val = (bit<NETCACHE_VTABLE_SLOT_WIDTH_MID>) (hdr.netcache.value[512:640]);
 
 							vt5.write((bit<32>) meta.vt_idx, new_val);
-
-							shift_pos = shift_pos + NETCACHE_VTABLE_SLOT_WIDTH_MID;
 						}
 
 						if (meta.vt_bitmap[3:3] == 1) {
 							bit<NETCACHE_VTABLE_SLOT_WIDTH_MID> new_val;
-							new_val = (bit<NETCACHE_VTABLE_SLOT_WIDTH_MID>) (hdr.netcache.value >> shift_pos);
+							new_val = (bit<NETCACHE_VTABLE_SLOT_WIDTH_MID>) (hdr.netcache.value[640:768]);
 
 							vt4.write((bit<32>) meta.vt_idx, new_val);
-
-							shift_pos = shift_pos + NETCACHE_VTABLE_SLOT_WIDTH_MID;
 						}
 
 						if (meta.vt_bitmap[4:4] == 1) {
 							bit<NETCACHE_VTABLE_SLOT_WIDTH_SMALL> new_val;
-							new_val = (bit<NETCACHE_VTABLE_SLOT_WIDTH_SMALL>) (hdr.netcache.value >> shift_pos);
+							new_val = (bit<NETCACHE_VTABLE_SLOT_WIDTH_SMALL>) (hdr.netcache.value[768:832]);
 
 							vt3.write((bit<32>) meta.vt_idx, new_val);
-
-							shift_pos = shift_pos + NETCACHE_VTABLE_SLOT_WIDTH_SMALL;
 						}
 
 						if (meta.vt_bitmap[5:5] == 1) {
 							bit<NETCACHE_VTABLE_SLOT_WIDTH_SMALL> new_val;
-							new_val = (bit<NETCACHE_VTABLE_SLOT_WIDTH_SMALL>) (hdr.netcache.value >> shift_pos);
+							new_val = (bit<NETCACHE_VTABLE_SLOT_WIDTH_SMALL>) (hdr.netcache.value[832:896]);
 
 							vt2.write((bit<32>) meta.vt_idx, new_val);
-
-							shift_pos = shift_pos + NETCACHE_VTABLE_SLOT_WIDTH_SMALL;
 						}
 
 						if (meta.vt_bitmap[6:6] == 1) {
 							bit<NETCACHE_VTABLE_SLOT_WIDTH_SMALL> new_val;
-							new_val = (bit<NETCACHE_VTABLE_SLOT_WIDTH_SMALL>) (hdr.netcache.value >> shift_pos);
+							new_val = (bit<NETCACHE_VTABLE_SLOT_WIDTH_SMALL>) (hdr.netcache.value[896:960]);
 
 							vt1.write((bit<32>) meta.vt_idx, new_val);
-
-							shift_pos = shift_pos + NETCACHE_VTABLE_SLOT_WIDTH_SMALL;
 						}
 
 						if (meta.vt_bitmap[7:7] == 1) {
 							bit<NETCACHE_VTABLE_SLOT_WIDTH_SMALL> new_val;
-							new_val = (bit<NETCACHE_VTABLE_SLOT_WIDTH_SMALL>) (hdr.netcache.value >> shift_pos);
+							new_val = (bit<NETCACHE_VTABLE_SLOT_WIDTH_SMALL>) (hdr.netcache.value[960:1024]);
 
 							vt0.write((bit<32>) meta.vt_idx, new_val);
 						}
