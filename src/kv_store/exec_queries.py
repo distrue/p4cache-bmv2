@@ -16,7 +16,7 @@ def main(n_servers, disable_cache, suppress, input_files):
             while line:
                 query += 1
                 if(cnt[0] == 'write'):
-                    client.write(cnt[1].strip(), suppress=suppress)
+                    client.put(cnt[1].strip(), "change", suppress=suppress)
                 else:
                     client.read(cnt[1].strip(), suppress=suppress)
                 line = fp.readline()  
