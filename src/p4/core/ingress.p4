@@ -388,7 +388,7 @@ control MyIngress(inout headers hdr,
 
 					}
 
-					else if (hdr.netcache.op == UPDATE_COMPLETE) {
+					/* else if (hdr.netcache.op == UPDATE_COMPLETE) {
 
 						// if it's an update query then ensure that the switch will
 						// forward the packet back to the server to complete the
@@ -474,7 +474,7 @@ control MyIngress(inout headers hdr,
 
 						hdr.netcache.op = UPDATE_COMPLETE_OK;
 
-					}
+					}*/
 
 				}
 
