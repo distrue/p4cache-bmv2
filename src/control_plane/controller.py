@@ -236,8 +236,8 @@ class NCacheController(object):
                 cnt = 0
                 bitmap = 0
                 for i in reversed(range(wd)):
-                    if cnt >= n_slots:
-                        break
+                    # if cnt >= n_slots:
+                    #    break
 
                     if not self.bit_is_set(old_bitmap, i):
                         bitmap = bitmap | (1 << i)
