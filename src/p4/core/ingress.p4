@@ -160,11 +160,6 @@ control MyIngress(inout headers hdr,
 		bit<NETCACHE_VTABLE_SLOT_WIDTH_SMALL> curr_stage_val;
 		vt1.read(curr_stage_val, (bit<32>) meta.vt_idx);
 
-		bit<16> shift_pos = 0;
-		if (valid_stages_num != 0) {
-			shift_pos = 64 << (valid_stages_num - 1);
-		}
-
 		hdr.netcache.value = (bit<NETCACHE_VALUE_WIDTH_MAX>) hdr.netcache.value << 64;
 		hdr.netcache.value = hdr.netcache.value | (bit<NETCACHE_VALUE_WIDTH_MAX>) curr_stage_val;
 
@@ -357,8 +352,8 @@ control MyIngress(inout headers hdr,
 
 						if (meta.cache_valid && hdr.udp.srcPort != NETCACHE_PORT) {
 							vtable_0.apply(); vtable_1.apply(); vtable_2.apply(); vtable_3.apply();
-							vtable_4.apply(); vtable_5.apply(); vtable_6.apply(); vtable_7.apply();
-
+							// vtable_4.apply(); vtable_5.apply(); vtable_6.apply(); vtable_7.apply();
+							
 							ret_pkt_to_sender();
 						}
 
