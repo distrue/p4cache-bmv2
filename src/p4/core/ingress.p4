@@ -127,6 +127,10 @@ control MyIngress(inout headers hdr,
 	register<bit<NETCACHE_VTABLE_SLOT_WIDTH>>(NETCACHE_ENTRIES) vt9;
 	register<bit<NETCACHE_VTABLE_SLOT_WIDTH>>(NETCACHE_ENTRIES) vt10;
 	register<bit<NETCACHE_VTABLE_SLOT_WIDTH>>(NETCACHE_ENTRIES) vt11;
+	register<bit<NETCACHE_VTABLE_SLOT_WIDTH>>(NETCACHE_ENTRIES) vt12;
+	register<bit<NETCACHE_VTABLE_SLOT_WIDTH>>(NETCACHE_ENTRIES) vt13;
+	register<bit<NETCACHE_VTABLE_SLOT_WIDTH>>(NETCACHE_ENTRIES) vt14;
+	register<bit<NETCACHE_VTABLE_SLOT_WIDTH>>(NETCACHE_ENTRIES) vt15;
 
 	// count how many stages actually got triggered (1s on bitmap)
 	// this variable is needed for the shifting logic
@@ -325,6 +329,66 @@ control MyIngress(inout headers hdr,
 		valid_stages_num = valid_stages_num + 1;
 	}
 
+	action process_array_12() {
+		bit<NETCACHE_VTABLE_SLOT_WIDTH> curr_stage_val;
+		vt12.read(curr_stage_val, (bit<32>) meta.vt_idx);
+
+		bit<8> shift_pos = 0;
+		if (valid_stages_num != 0) {
+			shift_pos = 64 << (valid_stages_num - 1);
+		}
+
+		hdr.netcache.value = (bit<NETCACHE_VALUE_WIDTH_MAX>) hdr.netcache.value << 64;
+		hdr.netcache.value = hdr.netcache.value | (bit<NETCACHE_VALUE_WIDTH_MAX>) curr_stage_val;
+
+		valid_stages_num = valid_stages_num + 1;
+	}
+
+	action process_array_13() {
+		bit<NETCACHE_VTABLE_SLOT_WIDTH> curr_stage_val;
+		vt13.read(curr_stage_val, (bit<32>) meta.vt_idx);
+
+		bit<8> shift_pos = 0;
+		if (valid_stages_num != 0) {
+			shift_pos = 64 << (valid_stages_num - 1);
+		}
+
+		hdr.netcache.value = (bit<NETCACHE_VALUE_WIDTH_MAX>) hdr.netcache.value << 64;
+		hdr.netcache.value = hdr.netcache.value | (bit<NETCACHE_VALUE_WIDTH_MAX>) curr_stage_val;
+
+		valid_stages_num = valid_stages_num + 1;
+	}
+
+	action process_array_14() {
+		bit<NETCACHE_VTABLE_SLOT_WIDTH> curr_stage_val;
+		vt14.read(curr_stage_val, (bit<32>) meta.vt_idx);
+
+		bit<8> shift_pos = 0;
+		if (valid_stages_num != 0) {
+			shift_pos = 64 << (valid_stages_num - 1);
+		}
+
+		hdr.netcache.value = (bit<NETCACHE_VALUE_WIDTH_MAX>) hdr.netcache.value << 64;
+		hdr.netcache.value = hdr.netcache.value | (bit<NETCACHE_VALUE_WIDTH_MAX>) curr_stage_val;
+
+		valid_stages_num = valid_stages_num + 1;
+	}
+
+	action process_array_15() {
+		bit<NETCACHE_VTABLE_SLOT_WIDTH> curr_stage_val;
+		vt15.read(curr_stage_val, (bit<32>) meta.vt_idx);
+
+		bit<8> shift_pos = 0;
+		if (valid_stages_num != 0) {
+			shift_pos = 64 << (valid_stages_num - 1);
+		}
+
+		hdr.netcache.value = (bit<NETCACHE_VALUE_WIDTH_MAX>) hdr.netcache.value << 64;
+		hdr.netcache.value = hdr.netcache.value | (bit<NETCACHE_VALUE_WIDTH_MAX>) curr_stage_val;
+
+		valid_stages_num = valid_stages_num + 1;
+	}
+
 
 	table vtable_0 {
 		key = {
@@ -380,6 +444,7 @@ control MyIngress(inout headers hdr,
 		}
 		actions = {
 			process_array_4;
+			process_array_5;
 			NoAction;
 		}
 		size = NETCACHE_ENTRIES;
@@ -391,7 +456,8 @@ control MyIngress(inout headers hdr,
 			meta.vt_bitmap[2:2]: exact;
 		}
 		actions = {
-			process_array_5;
+			process_array_6;
+			process_array_7;
 			NoAction;
 		}
 		size = NETCACHE_ENTRIES;
@@ -403,7 +469,10 @@ control MyIngress(inout headers hdr,
 			meta.vt_bitmap[1:1]: exact;
 		}
 		actions = {
-			process_array_6;
+			process_array_8;
+			process_array_9;
+			process_array_10;
+			process_array_11;
 			NoAction;
 		}
 		size = NETCACHE_ENTRIES;
@@ -412,66 +481,18 @@ control MyIngress(inout headers hdr,
 
 	table vtable_7 {
 		key = {
-			meta.vt_bitmap[1:0]: exact;
-		}
-		actions = {
-			process_array_7;
-			NoAction;
-		}
-		size = NETCACHE_ENTRIES;
-		default_action = NoAction;
-	}
-
-
-	table vtable_8 {
-		key = {
-			meta.vt_bitmap[1:0]: exact;
-		}
-		actions = {
-			process_array_8;
-			NoAction;
-		}
-		size = NETCACHE_ENTRIES;
-		default_action = NoAction;
-	}
-
-	table vtable_9 {
-		key = {
 			meta.vt_bitmap[0:0]: exact;
 		}
 		actions = {
-			process_array_9;
+			process_array_12;
+			process_array_13;
+			process_array_14;
+			process_array_15;
 			NoAction;
 		}
 		size = NETCACHE_ENTRIES;
 		default_action = NoAction;
 	}
-
-	table vtable_10 {
-		key = {
-			meta.vt_bitmap[0:0]: exact;
-		}
-		actions = {
-			process_array_10;
-			NoAction;
-		}
-		size = NETCACHE_ENTRIES;
-		default_action = NoAction;
-	}
-
-	table vtable_11 {
-		key = {
-			meta.vt_bitmap[0:0]: exact;
-		}
-		actions = {
-			process_array_11;
-			NoAction;
-		}
-		size = NETCACHE_ENTRIES;
-		default_action = NoAction;
-	}
-
-
 
 	apply {
 
