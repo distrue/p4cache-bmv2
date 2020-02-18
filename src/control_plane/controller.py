@@ -53,7 +53,7 @@ class NetcacheHeader(Packet):
 
 class NCacheController(object):
 
-    def __init__(self, sw_name, vtables_num=8):
+    def __init__(self, sw_name, vtables_num=12):
         self.topo = Topology(db="../p4/topology.db")
         self.sw_name = sw_name
         self.thrift_port = self.topo.get_thrift_port(self.sw_name)
@@ -314,8 +314,8 @@ class NCacheController(object):
         self.key_map[key] = vt_index, bitmap, key_index
 
         # inform the server about the successful cache insertion
-        if cont:
-            self.inform_server()
+        # if cont:
+        #    self.inform_server()
 
         print("Inserted key-value pair to cache: ("+key+","+value+")")
 

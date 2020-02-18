@@ -123,6 +123,10 @@ control MyIngress(inout headers hdr,
 	register<bit<NETCACHE_VTABLE_SLOT_WIDTH>>(NETCACHE_ENTRIES) vt5;
 	register<bit<NETCACHE_VTABLE_SLOT_WIDTH>>(NETCACHE_ENTRIES) vt6;
 	register<bit<NETCACHE_VTABLE_SLOT_WIDTH>>(NETCACHE_ENTRIES) vt7;
+	register<bit<NETCACHE_VTABLE_SLOT_WIDTH>>(NETCACHE_ENTRIES) vt8;
+	register<bit<NETCACHE_VTABLE_SLOT_WIDTH>>(NETCACHE_ENTRIES) vt9;
+	register<bit<NETCACHE_VTABLE_SLOT_WIDTH>>(NETCACHE_ENTRIES) vt10;
+	register<bit<NETCACHE_VTABLE_SLOT_WIDTH>>(NETCACHE_ENTRIES) vt11s;
 
 	// count how many stages actually got triggered (1s on bitmap)
 	// this variable is needed for the shifting logic
@@ -261,6 +265,66 @@ control MyIngress(inout headers hdr,
 		valid_stages_num = valid_stages_num + 1;
 	}
 
+	action process_array_8() {
+		bit<NETCACHE_VTABLE_SLOT_WIDTH> curr_stage_val;
+		vt8.read(curr_stage_val, (bit<32>) meta.vt_idx);
+
+		bit<8> shift_pos = 0;
+		if (valid_stages_num != 0) {
+			shift_pos = 64 << (valid_stages_num - 1);
+		}
+
+		hdr.netcache.value = (bit<NETCACHE_VALUE_WIDTH_MAX>) hdr.netcache.value << 64;
+		hdr.netcache.value = hdr.netcache.value | (bit<NETCACHE_VALUE_WIDTH_MAX>) curr_stage_val;
+
+		valid_stages_num = valid_stages_num + 1;
+	}
+
+	action process_array_9() {
+		bit<NETCACHE_VTABLE_SLOT_WIDTH> curr_stage_val;
+		vt9.read(curr_stage_val, (bit<32>) meta.vt_idx);
+
+		bit<8> shift_pos = 0;
+		if (valid_stages_num != 0) {
+			shift_pos = 64 << (valid_stages_num - 1);
+		}
+
+		hdr.netcache.value = (bit<NETCACHE_VALUE_WIDTH_MAX>) hdr.netcache.value << 64;
+		hdr.netcache.value = hdr.netcache.value | (bit<NETCACHE_VALUE_WIDTH_MAX>) curr_stage_val;
+
+		valid_stages_num = valid_stages_num + 1;
+	}
+
+	action process_array_10() {
+		bit<NETCACHE_VTABLE_SLOT_WIDTH> curr_stage_val;
+		vt10.read(curr_stage_val, (bit<32>) meta.vt_idx);
+
+		bit<8> shift_pos = 0;
+		if (valid_stages_num != 0) {
+			shift_pos = 64 << (valid_stages_num - 1);
+		}
+
+		hdr.netcache.value = (bit<NETCACHE_VALUE_WIDTH_MAX>) hdr.netcache.value << 64;
+		hdr.netcache.value = hdr.netcache.value | (bit<NETCACHE_VALUE_WIDTH_MAX>) curr_stage_val;
+
+		valid_stages_num = valid_stages_num + 1;
+	}
+
+	action process_array_11() {
+		bit<NETCACHE_VTABLE_SLOT_WIDTH> curr_stage_val;
+		vt11.read(curr_stage_val, (bit<32>) meta.vt_idx);
+
+		bit<8> shift_pos = 0;
+		if (valid_stages_num != 0) {
+			shift_pos = 64 << (valid_stages_num - 1);
+		}
+
+		hdr.netcache.value = (bit<NETCACHE_VALUE_WIDTH_MAX>) hdr.netcache.value << 64;
+		hdr.netcache.value = hdr.netcache.value | (bit<NETCACHE_VALUE_WIDTH_MAX>) curr_stage_val;
+
+		valid_stages_num = valid_stages_num + 1;
+	}
+
 
 	table vtable_0 {
 		key = {
@@ -359,6 +423,55 @@ control MyIngress(inout headers hdr,
 	}
 
 
+	table vtable_8 {
+		key = {
+			meta.vt_bitmap[0:0]: exact;
+		}
+		actions = {
+			process_array_7;
+			NoAction;
+		}
+		size = NETCACHE_ENTRIES;
+		default_action = NoAction;
+	}
+
+	table vtable_9 {
+		key = {
+			meta.vt_bitmap[0:0]: exact;
+		}
+		actions = {
+			process_array_7;
+			NoAction;
+		}
+		size = NETCACHE_ENTRIES;
+		default_action = NoAction;
+	}
+
+	table vtable_10 {
+		key = {
+			meta.vt_bitmap[0:0]: exact;
+		}
+		actions = {
+			process_array_7;
+			NoAction;
+		}
+		size = NETCACHE_ENTRIES;
+		default_action = NoAction;
+	}
+
+	table vtable_11 {
+		key = {
+			meta.vt_bitmap[0:0]: exact;
+		}
+		actions = {
+			process_array_7;
+			NoAction;
+		}
+		size = NETCACHE_ENTRIES;
+		default_action = NoAction;
+	}
+
+
 
 	apply {
 
@@ -388,6 +501,7 @@ control MyIngress(inout headers hdr,
 						if (meta.cache_valid && hdr.udp.srcPort != NETCACHE_PORT) {
 							vtable_0.apply(); vtable_1.apply(); vtable_2.apply(); vtable_3.apply();
 							vtable_4.apply(); vtable_5.apply(); vtable_6.apply(); vtable_7.apply();
+							vtable_8.apply(); vtable_9.apply(); vtable_10.apply(); vtable_11.apply();
 
 							ret_pkt_to_sender();
 						}
