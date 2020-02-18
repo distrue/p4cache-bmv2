@@ -14,14 +14,14 @@
 /* netcache size */
 #define NETCACHE_ENTRIES_SMALL 65536
 #define NETCACHE_ENTRIES_MID 32768
-#define NETCACHE_ENTRIES_BIG 8192
+#define NETCACHE_ENTRIES_BIG 16384
 
 /* netcache value table constant definitions */
 #define NETCACHE_VTABLE_NUM 8
 #define NETCACHE_VTABLE_SIZE_WIDTH 16
 #define NETCACHE_VTABLE_SLOT_WIDTH_SMALL 64    // in bits
 #define NETCACHE_VTABLE_SLOT_WIDTH_MID 128    // in bits
-#define NETCACHE_VTABLE_SLOT_WIDTH_BIG 512    // in bits
+#define NETCACHE_VTABLE_SLOT_WIDTH_BIG 256    // in bits
 
 
 /* minpow2(NETCACHE_ENTRIES * NETCACHE_VTABLE_NUM) */
@@ -29,8 +29,8 @@
 #define MAX_KEYS (NETCACHE_ENTRIES_SMALL * NETCACHE_VTABLE_NUM)
 
 /* maximum number of bits of netcache fields */
-/* fix: 64 * 4 + 128 * 2 + 512 * 2 = 1546 (in bits) */
-#define NETCACHE_VALUE_WIDTH_MAX 1546
+/* fix: 64 * 4 + 128 * 2 + 256 * 2 = 1024 (in bits) */
+#define NETCACHE_VALUE_WIDTH_MAX 1024
 #define NETCACHE_KEY_WIDTH 128
 
 /* special reserved port for NetCache */

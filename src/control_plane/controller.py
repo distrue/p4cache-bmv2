@@ -48,7 +48,7 @@ crc32_polinomials = [0x04C11DB7, 0xEDB88320, 0xDB710641, 0x82608EDB,
 class NetcacheHeader(Packet):
     name = 'NcachePacket'
     fields_desc = [BitField('op', 0, 8), BitField('seq', 0, 32),
-            BitField('key', 0, 128), BitField('value', 0, 512)]
+            BitField('key', 0, 128), BitField('value', 0, 1024)]
 
 
 class NCacheController(object):
@@ -221,11 +221,11 @@ class NCacheController(object):
             return None
 
         if(value_size >= 512):
-            st, ed, wd = 0, 8192, 4
+            st, ed, wd = 0, 16384, 8
         elif(value_size >= 256):
-            st, ed, wd = 8192, 32768, 6
+            st, ed, wd = 16384, 32768, 6
         else:
-            st, ed, wd = 32768, 65536, 8
+            st, ed, wd = 32768, 65536, 4
 
         for idx in range(st, ed): # len(self.mem_pool) 
             old_bitmap = self.mem_pool[idx]

@@ -160,7 +160,7 @@ control MyIngress(inout headers hdr,
 		bit<NETCACHE_VTABLE_SLOT_WIDTH_SMALL> curr_stage_val;
 		vt1.read(curr_stage_val, (bit<32>) meta.vt_idx);
 
-		bit<8> shift_pos = 0;
+		bit<16> shift_pos = 0;
 		if (valid_stages_num != 0) {
 			shift_pos = 64 << (valid_stages_num - 1);
 		}
@@ -175,7 +175,7 @@ control MyIngress(inout headers hdr,
 		bit<NETCACHE_VTABLE_SLOT_WIDTH_SMALL> curr_stage_val;
 		vt2.read(curr_stage_val, (bit<32>) meta.vt_idx);
 
-		bit<8> shift_pos = 0;
+		bit<16> shift_pos = 0;
 		if (valid_stages_num != 0) {
 			shift_pos = 64 << (valid_stages_num - 1);
 		}
@@ -190,7 +190,7 @@ control MyIngress(inout headers hdr,
 		bit<NETCACHE_VTABLE_SLOT_WIDTH_SMALL> curr_stage_val;
 		vt3.read(curr_stage_val, (bit<32>) meta.vt_idx);
 
-		bit<8> shift_pos = 0;
+		bit<16> shift_pos = 0;
 		if (valid_stages_num != 0) {
 			shift_pos = 64 << (valid_stages_num - 1);
 		}
@@ -205,7 +205,7 @@ control MyIngress(inout headers hdr,
 		bit<NETCACHE_VTABLE_SLOT_WIDTH_MID> curr_stage_val;
 		vt4.read(curr_stage_val, (bit<32>) meta.vt_idx);
 
-		bit<8> shift_pos = 0;
+		bit<16> shift_pos = 0;
 		if (valid_stages_num != 0) {
 			shift_pos = 64 << (valid_stages_num - 1);
 		}
@@ -220,7 +220,7 @@ control MyIngress(inout headers hdr,
 		bit<NETCACHE_VTABLE_SLOT_WIDTH_MID> curr_stage_val;
 		vt5.read(curr_stage_val, (bit<32>) meta.vt_idx);
 
-		bit<8> shift_pos = 0;
+		bit<16> shift_pos = 0;
 		if (valid_stages_num != 0) {
 			shift_pos = 64 << (valid_stages_num - 1);
 		}
@@ -235,12 +235,12 @@ control MyIngress(inout headers hdr,
 		bit<NETCACHE_VTABLE_SLOT_WIDTH_BIG> curr_stage_val;
 		vt6.read(curr_stage_val, (bit<32>) meta.vt_idx);
 
-		bit<8> shift_pos = 0;
+		bit<16> shift_pos = 0;
 		if (valid_stages_num != 0) {
 			shift_pos = 64 << (valid_stages_num - 1);
 		}
 
-		hdr.netcache.value = (bit<NETCACHE_VALUE_WIDTH_MAX>) hdr.netcache.value << 512;
+		hdr.netcache.value = (bit<NETCACHE_VALUE_WIDTH_MAX>) hdr.netcache.value << 256;
 		hdr.netcache.value = hdr.netcache.value | (bit<NETCACHE_VALUE_WIDTH_MAX>) curr_stage_val;
 
 		valid_stages_num = valid_stages_num + 1;
@@ -250,12 +250,12 @@ control MyIngress(inout headers hdr,
 		bit<NETCACHE_VTABLE_SLOT_WIDTH_BIG> curr_stage_val;
 		vt7.read(curr_stage_val, (bit<32>) meta.vt_idx);
 
-		bit<8> shift_pos = 0;
+		bit<16> shift_pos = 0;
 		if (valid_stages_num != 0) {
 			shift_pos = 64 << (valid_stages_num - 1);
 		}
 
-		hdr.netcache.value = (bit<NETCACHE_VALUE_WIDTH_MAX>) hdr.netcache.value << 512;
+		hdr.netcache.value = (bit<NETCACHE_VALUE_WIDTH_MAX>) hdr.netcache.value << 256;
 		hdr.netcache.value = hdr.netcache.value | (bit<NETCACHE_VALUE_WIDTH_MAX>) curr_stage_val;
 
 		valid_stages_num = valid_stages_num + 1;
@@ -426,7 +426,7 @@ control MyIngress(inout headers hdr,
 						ret_pkt_to_sender();
 
 						bit<8> stages_cnt = 0;
-						bit<8> shift_pos = 0;
+						bit<16> shift_pos = 0;
 
 
 						if (meta.vt_bitmap[0:0] == 1) {
