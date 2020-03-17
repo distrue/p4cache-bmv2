@@ -13,15 +13,6 @@
 #define pkt_instance_type_replication 5
 #define pkt_instance_type_resubmit 6
 
-#define pkt_is_mirrored \
-	((standard_metadata.instance_type != pkt_instance_type_normal) && \
-	 (standard_metadata.instance_type != pkt_instance_type_replication))
-
-#define pkt_is_not_mirrored \
-	 ((standard_metadata.instance_type == pkt_instance_type_normal) || \
-	  (standard_metadata.instance_type == pkt_instance_type_replication))
-
-
 control MyIngress(inout headers hdr,
                   inout metadata meta,
                   inout standard_metadata_t standard_metadata) {
@@ -525,120 +516,14 @@ control MyIngress(inout headers hdr,
 
 							ret_pkt_to_sender();
 						}
-
                     }
 
-
-					// if the key of the write query exists in the cache then we should inform
-					// the controller to initiate the 3-way cache coherency handshake
                     else if (hdr.netcache.op == WRITE_QUERY) {
 
                         cache_status.write((bit<32>) meta.key_idx, (bit<1>) 0);
 
 						hdr.netcache.op = CACHED_UPDATE;
                     }
-                    // the server will block subsequent writes and update the entry
-                    // in the cache. to notify the server that the entry is cached
-                    // we set a special header
-
-                    // delete query is forwarded to key-value server and if the
-					// key resides in cache then its entry is invalidated
-                    // the paper does not specify what we should do additionally
-                    // probably the kv-store should delete the entry and notify the
-                    // controller as well -> perhaps use the mirroring CPU port approach as well
-                    else if (hdr.netcache.op == DELETE_QUERY) {
-
-                        cache_status.write((bit<32>) meta.key_idx, (bit<1>) 0);
-
-					}
-
-					else if (hdr.netcache.op == UPDATE_COMPLETE) {
-
-						// if it's an update query then ensure that the switch will
-						// forward the packet back to the server to complete the
-						// cache coherency handshake
-						ret_pkt_to_sender();
-
-						bit<8> stages_cnt = 0;
-						bit<8> shift_pos = 0;
-
-
-						if (meta.vt_bitmap[0:0] == 1) {
-							bit<NETCACHE_VTABLE_SLOT_WIDTH> new_val;
-							new_val = (bit<NETCACHE_VTABLE_SLOT_WIDTH>) (hdr.netcache.value >> shift_pos);
-
-							vt7.write((bit<32>) meta.vt_idx, new_val);
-
-							shift_pos = shift_pos + NETCACHE_VTABLE_SLOT_WIDTH;
-						}
-
-						if (meta.vt_bitmap[1:1] == 1) {
-							bit<NETCACHE_VTABLE_SLOT_WIDTH> new_val;
-							new_val = (bit<NETCACHE_VTABLE_SLOT_WIDTH>) (hdr.netcache.value >> shift_pos);
-
-							vt6.write((bit<32>) meta.vt_idx, new_val);
-
-							shift_pos = shift_pos + NETCACHE_VTABLE_SLOT_WIDTH;
-						}
-
-						if (meta.vt_bitmap[2:2] == 1) {
-							bit<NETCACHE_VTABLE_SLOT_WIDTH> new_val;
-							new_val = (bit<NETCACHE_VTABLE_SLOT_WIDTH>) (hdr.netcache.value >> shift_pos);
-
-							vt5.write((bit<32>) meta.vt_idx, new_val);
-
-							shift_pos = shift_pos + NETCACHE_VTABLE_SLOT_WIDTH;
-						}
-
-						if (meta.vt_bitmap[3:3] == 1) {
-							bit<NETCACHE_VTABLE_SLOT_WIDTH> new_val;
-							new_val = (bit<NETCACHE_VTABLE_SLOT_WIDTH>) (hdr.netcache.value >> shift_pos);
-
-							vt4.write((bit<32>) meta.vt_idx, new_val);
-
-							shift_pos = shift_pos + NETCACHE_VTABLE_SLOT_WIDTH;
-						}
-
-						if (meta.vt_bitmap[4:4] == 1) {
-							bit<NETCACHE_VTABLE_SLOT_WIDTH> new_val;
-							new_val = (bit<NETCACHE_VTABLE_SLOT_WIDTH>) (hdr.netcache.value >> shift_pos);
-
-							vt3.write((bit<32>) meta.vt_idx, new_val);
-
-							shift_pos = shift_pos + NETCACHE_VTABLE_SLOT_WIDTH;
-						}
-
-						if (meta.vt_bitmap[5:5] == 1) {
-							bit<NETCACHE_VTABLE_SLOT_WIDTH> new_val;
-							new_val = (bit<NETCACHE_VTABLE_SLOT_WIDTH>) (hdr.netcache.value >> shift_pos);
-
-							vt2.write((bit<32>) meta.vt_idx, new_val);
-
-							shift_pos = shift_pos + NETCACHE_VTABLE_SLOT_WIDTH;
-						}
-
-						if (meta.vt_bitmap[6:6] == 1) {
-							bit<NETCACHE_VTABLE_SLOT_WIDTH> new_val;
-							new_val = (bit<NETCACHE_VTABLE_SLOT_WIDTH>) (hdr.netcache.value >> shift_pos);
-
-							vt1.write((bit<32>) meta.vt_idx, new_val);
-
-							shift_pos = shift_pos + NETCACHE_VTABLE_SLOT_WIDTH;
-						}
-
-						if (meta.vt_bitmap[7:7] == 1) {
-							bit<NETCACHE_VTABLE_SLOT_WIDTH> new_val;
-							new_val = (bit<NETCACHE_VTABLE_SLOT_WIDTH>) (hdr.netcache.value >> shift_pos);
-
-							vt0.write((bit<32>) meta.vt_idx, new_val);
-						}
-
-
-						cache_status.write((bit<32>) meta.key_idx, (bit<1>) 1);
-
-						hdr.netcache.op = UPDATE_COMPLETE_OK;
-
-					}
 
 				}
 
