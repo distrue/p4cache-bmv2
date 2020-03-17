@@ -7,7 +7,7 @@
 # assigned to which server. This will significantly help the evaluation
 # of our netcache implementation.
 
-data_dir=data
+data_dir=../data
 
 n_values=100
 n_servers=1

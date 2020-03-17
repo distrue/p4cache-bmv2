@@ -15,16 +15,13 @@ def main(n_servers, disable_cache, suppress, input_files):
             cnt = line.split(' ')
             while line:
                 query += 1
-                # if(cnt[0] == 'write'):
-                #     client.write(cnt[1].strip(), suppress=suppress)
-                # else:
-                client.read(cnt[1].strip(), suppress=suppress)
+                if(cnt[0] == 'write'):
+                    client.put(cnt[1].strip(), 'new', suppress=suppress)
+                else:
+                    client.read(cnt[1].strip(), suppress=suppress)
                 
                 line = fp.readline()  
                 cnt = line.split(' ')          
-
-        #print("\n########## SERVER METRICS REPORT ##########")
-        #print("########## [{}] ##########\n".format(filepath))
 
         if disable_cache:
             x = 'nocache'
