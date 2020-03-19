@@ -50,7 +50,9 @@ func NewSwitchConnection(name string, address string, device_id uint64) *SwitchC
 	if address == "" {
 		address = "127.0.0.1:9090"
 	}
-	device_id = 0
+	if device_id == 0 {
+		device_id = 1
+	}
 	conn, err := grpc.Dial(address, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
@@ -58,7 +60,7 @@ func NewSwitchConnection(name string, address string, device_id uint64) *SwitchC
 	fmt.Println("grpc connected")
 
 	c := p4runtime.NewP4RuntimeClient(conn)
-	ctx := context.Background() // context.WithTimeout(, time.Second)
+	ctx := context.Background()
 	fmt.Println("client generated")
 
 	switchConnection := &SwitchConnection{
@@ -74,7 +76,7 @@ func NewSwitchConnection(name string, address string, device_id uint64) *SwitchC
 }
 
 func main() {
-	swt := NewSwitchConnection("client", "127.0.0.1:9090", 0)
+	swt := NewSwitchConnection("client", "127.0.0.1:9090", 1)
 	cfgreq := &p4runtime.GetForwardingPipelineConfigRequest{
 		DeviceId:     swt.device_id,
 		ResponseType: p4runtime.GetForwardingPipelineConfigRequest_ALL,
