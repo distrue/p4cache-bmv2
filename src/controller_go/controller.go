@@ -72,6 +72,19 @@ func NewSwitchConnection(name string, address string, device_id uint64) *SwitchC
 		ctx:         ctx,
 	}
 	connections = append(connections, switchConnection)
+
+	// grpc work test
+	cfgreq := &p4runtime.GetForwardingPipelineConfigRequest{
+		DeviceId:     device_id,
+		ResponseType: p4runtime.GetForwardingPipelineConfigRequest_ALL,
+	}
+	out := new(p4runtime.SetForwardingPipelineConfigResponse)
+	conn.Invoke(ctx, "/p4.v1.P4Runtime/SetForwardingPipelineConfig", cfgreq, out)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(out)
+
 	return switchConnection
 }
 
