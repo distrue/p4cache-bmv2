@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
+	"sync"
 
 	p4runtime "github.com/distrue/p4goruntime/p4/v1"
 	grpc "google.golang.org/grpc"
@@ -43,6 +45,32 @@ type SwitchConnection struct {
 	ctx context.Context
 }
 
+func OpenStreamListener(stream p4runtime.P4Runtime_StreamChannelClient) sync.WaitGroup {
+
+	var waitg sync.WaitGroup
+	waitg.Add(1)
+
+	go func() {
+		for {
+			inData, err := stream.Recv()
+			if err == io.EOF {
+				waitg.Done()
+				return
+			}
+			if err != nil {
+				fmt.Printf("[STREAM-ERROR] (%T) : %+v\n", err, err)
+			}
+			if inData != nil {
+				fmt.Printf("[STREAM-INCOMING] (%T) : %+v\n", inData, inData)
+
+			}
+			// Act on the received message
+		}
+	}()
+
+	return waitg
+}
+
 func NewSwitchConnection(name string, address string, device_id uint64) *SwitchConnection {
 	if name == "" {
 		name = "client"
@@ -63,6 +91,14 @@ func NewSwitchConnection(name string, address string, device_id uint64) *SwitchC
 	ctx := context.Background()
 	fmt.Println("client generated")
 
+	stream, sErr := c.StreamChannel(context.Background())
+	if sErr != nil {
+		fmt.Println(sErr)
+		log.Fatalf("cannot open stream channel with the server")
+	}
+
+	listener := OpenStreamListener(stream)
+
 	switchConnection := &SwitchConnection{
 		name:        name,
 		address:     address,
@@ -72,19 +108,7 @@ func NewSwitchConnection(name string, address string, device_id uint64) *SwitchC
 		ctx:         ctx,
 	}
 	connections = append(connections, switchConnection)
-
-	// grpc work test
-	cfgreq := &p4runtime.GetForwardingPipelineConfigRequest{
-		DeviceId:     device_id,
-		ResponseType: p4runtime.GetForwardingPipelineConfigRequest_ALL,
-	}
-	out := new(p4runtime.SetForwardingPipelineConfigResponse)
-	conn.Invoke(ctx, "/p4.v1.P4Runtime/SetForwardingPipelineConfig", cfgreq, out)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(out)
-
+	listener.Wait()
 	return switchConnection
 }
 
@@ -95,7 +119,7 @@ func main() {
 		ResponseType: p4runtime.GetForwardingPipelineConfigRequest_ALL,
 	}
 	fmt.Println(cfgreq.String())
-	pipeline, err := swt.client_stub.GetForwardingPipelineConfig(swt.ctx, cfgreq)
+	pipeline, err := swt.client_stub.GetForwardingPipelineConfig(context.Background(), cfgreq)
 	if err != nil {
 		panic(err)
 	}
