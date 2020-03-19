@@ -83,9 +83,16 @@ func NewSwitchConnection(name string, address string, device_id uint64) *SwitchC
 }
 
 func main() {
-	// swt := NewSwitchConnection("client", "127.0.0.1:9090", 0)
-	pipeline := p4runtime.ForwardingPipelineConfig{}
-	info := pipeline.GetP4Info()
+	swt := NewSwitchConnection("client", "127.0.0.1:9090", 0)
+	cfgreq := &p4runtime.GetForwardingPipelineConfigRequest{
+		DeviceId:     swt.device_id,
+		ResponseType: p4runtime.GetForwardingPipelineConfigRequest_ALL,
+	}
+	pipeline, err := swt.client_stub.GetForwardingPipelineConfig(swt.ctx, cfgreq)
+	if err != nil {
+		panic(err)
+	}
+	info := pipeline.Config.GetP4Info()
 	tables := info.GetTables()
 	for _, it := range tables {
 		fmt.Printf(it.String())
