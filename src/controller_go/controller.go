@@ -88,28 +88,16 @@ func main() {
 		ResponseType: p4runtime.GetForwardingPipelineConfigRequest_ALL,
 	}
 	pipeline, err := swt.client_stub.GetForwardingPipelineConfig(swt.ctx, cfgreq)
+	fmt.Println("get forwarding pipeline config")
 	if err != nil {
 		panic(err)
 	}
 	info := pipeline.Config.GetP4Info()
+	fmt.Println("get p4info")
 	tables := info.GetTables()
+	fmt.Println("get tables")
 	for _, it := range tables {
 		fmt.Printf(it.String())
 	}
-	/*
-		writereq := p4runtime.WriteRequest{
-			DeviceId: swt.device_id,
-			Updates: []*p4runtime.Update{
-				&p4runtime.Update{
-					Type:   p4runtime.Update_INSERT,
-					Entity: &p4runtime.Entity_TableEntry{
-						TableEntry: p4runtime.TableEntry{
-							TableId:
-						}
-					},
-				},
-			},
-		}
-		swt.client_stub.Write(swt.ctx, &writereq)*/
 	fmt.Printf("p4controller")
 }
