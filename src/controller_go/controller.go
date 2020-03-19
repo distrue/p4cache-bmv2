@@ -57,7 +57,7 @@ func NewSwitchConnection(name string, address string, device_id uint64) *SwitchC
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
-	fmt.Println("grpc connected")
+	fmt.Println("grpc connected", conn.GetState())
 
 	c := p4runtime.NewP4RuntimeClient(conn)
 	ctx := context.Background()
