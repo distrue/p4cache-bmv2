@@ -40,8 +40,6 @@ type SwitchConnection struct {
 	// self.channel = grpc.intercept_channel(self.channel, interceptor)
 	client_stub p4runtime.P4RuntimeClient
 	// requests_stream - temporary disable
-	stream_msg_resp p4runtime.P4Runtime_StreamChannelClient
-	// self.stream_msg_resp = self.client_stub.StreamChannel(iter(self.requests_stream))
 	ctx context.Context
 }
 
@@ -63,19 +61,13 @@ func NewSwitchConnection(name string, address string, device_id uint64) *SwitchC
 	ctx := context.Background() // context.WithTimeout(, time.Second)
 	fmt.Println("client generated")
 
-	steamChannel, err := c.StreamChannel(ctx)
-	if err != nil {
-		log.Fatalf("could not Read: %v", err)
-	}
-
 	switchConnection := &SwitchConnection{
-		name:            name,
-		address:         address,
-		device_id:       device_id,
-		channel:         conn,
-		client_stub:     c,
-		stream_msg_resp: steamChannel,
-		ctx:             ctx,
+		name:        name,
+		address:     address,
+		device_id:   device_id,
+		channel:     conn,
+		client_stub: c,
+		ctx:         ctx,
 	}
 	connections = append(connections, switchConnection)
 	return switchConnection
@@ -87,6 +79,7 @@ func main() {
 		DeviceId:     swt.device_id,
 		ResponseType: p4runtime.GetForwardingPipelineConfigRequest_ALL,
 	}
+	fmt.Println(cfgreq.String())
 	pipeline, err := swt.client_stub.GetForwardingPipelineConfig(swt.ctx, cfgreq)
 	fmt.Println("get forwarding pipeline config")
 	if err != nil {
