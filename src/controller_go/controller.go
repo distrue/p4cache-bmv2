@@ -54,15 +54,16 @@ func NewSwitchConnection(name string, address string, device_id uint64) *SwitchC
 		address = "127.0.0.1:9090"
 	}
 	device_id = 0
-	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.Dial(address, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
-	defer conn.Close()
+	fmt.Printf("grpc connected")
 
 	c := p4runtime.NewP4RuntimeClient(conn)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
+	fmt.Printf("client generated")
 
 	steamChannel, err := c.StreamChannel(ctx)
 	if err != nil {
