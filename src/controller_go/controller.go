@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"time"
 
 	p4runtime "github.com/distrue/p4goruntime/p4/v1"
 	grpc "google.golang.org/grpc"
@@ -58,12 +57,11 @@ func NewSwitchConnection(name string, address string, device_id uint64) *SwitchC
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
-	fmt.Printf("grpc connected")
+	fmt.Println("grpc connected")
 
 	c := p4runtime.NewP4RuntimeClient(conn)
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-	fmt.Printf("client generated")
+	ctx := context.Background() // context.WithTimeout(, time.Second)
+	fmt.Println("client generated")
 
 	steamChannel, err := c.StreamChannel(ctx)
 	if err != nil {
