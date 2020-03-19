@@ -48,7 +48,7 @@ func NewSwitchConnection(name string, address string, device_id uint64) *SwitchC
 		name = "client"
 	}
 	if address == "" {
-		address = "127.0.0.1:9090"
+		address = "localhost:9090"
 	}
 	if device_id == 0 {
 		device_id = 1
@@ -76,17 +76,17 @@ func NewSwitchConnection(name string, address string, device_id uint64) *SwitchC
 }
 
 func main() {
-	swt := NewSwitchConnection("client", "127.0.0.1:9090", 1)
+	swt := NewSwitchConnection("client", "localhost:9090", 1)
 	cfgreq := &p4runtime.GetForwardingPipelineConfigRequest{
 		DeviceId:     swt.device_id,
 		ResponseType: p4runtime.GetForwardingPipelineConfigRequest_ALL,
 	}
 	fmt.Println(cfgreq.String())
 	pipeline, err := swt.client_stub.GetForwardingPipelineConfig(swt.ctx, cfgreq)
-	fmt.Println("get forwarding pipeline config")
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println("get forwarding pipeline config")
 	info := pipeline.Config.GetP4Info()
 	fmt.Println("get p4info")
 	tables := info.GetTables()
