@@ -1,9 +1,9 @@
 {
   "program": "core/netcache.p4",
-  "switch": "simple_switch",
+  "switch": "/home/distrue/bmv2/targets/simple_switch_grpc/simple_switch_grpc",
   "compiler": "p4c",
   "options": "--target bmv2 --arch v1model --std p4-16",
-  "switch_cli": "simple_switch_CLI",
+  "switch_cli": "/home/distrue/bmv2/targets/simple_switch_grpc/simple_switch_grpc",
   "cli": true,
   "pcap_dump": false,
   "enable_log": true,
@@ -27,15 +27,28 @@
     "assignment_strategy" : "l2",
     "links": [
 		["server1", "s1"],
+		["server2", "s1"],
+		["server3", "s1"],
+		["server4", "s1"],
+		["server5", "s1"],
+		["server6", "s1"],
+		["server7", "s1"],
+		["server8", "s1"],
 		["client1", "s1"]
 	],
     "hosts": {
-      "server1": { },
-      "client1": { }
+		"server1": { },
+		"server2": { },
+		"server3": { },
+		"server4": { },
+		"server5": { },
+		"server6": { },
+		"server7": { },
+		"server8": { },
+		"client1": { }
     },
     "switches": {
       "s1": {
-        "cli_input": "s1-commands.txt",
         "program": "core/netcache.p4",
 		"cpu_port": true
       }

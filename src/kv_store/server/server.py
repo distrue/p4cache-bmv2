@@ -51,7 +51,7 @@ class KVServer:
         # server ip address
         self.host = host
         # server name
-        self.name = 'server' + self.host.split('.')[-1]
+        self.name = 'server-' + self.host
 
         # port server is listening to
         if nocache:
@@ -110,25 +110,6 @@ class KVServer:
 
         # starting time of serving requests (used for throughput calculation)
         self.start_time = time.time()
-
-
-
-    def create_controller_channel(self):
-        try:
-            os.unlink(UNIX_CHANNEL)
-        except:
-            if os.path.exists(UNIX_CHANNEL):
-                print('Error: unlinking unix socket')
-                sys.exit(1)
-
-        self.unixss = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        self.unixss.bind(UNIX_CHANNEL)
-        self.unixss.listen(1)
-
-        # spawn new thread that servers requests from controller (out-of-band communication)
-        server_cont_t = threading.Thread(target=self.handle_controller_request)
-        server_cont_t.start()
-
 
     # periodically print the number of requests received (used for testing purposes
     # to evalute the quality of load balancing)
@@ -276,26 +257,6 @@ class KVServer:
                 self.udpss.sendto(msg, addr)
 
                 self.requests_cnt += 1
-
-
-            elif op == NETCACHE_METRICS_REPORT:
-
-                if not self.suppress:
-                    print('[{}] Received METRICS_REPORT_REQUEST() from client {}'
-                            .format(self.name, key, addr[0]))
-
-                total_elapsed_time = time.time() - self.start_time
-                if total_elapsed_time != 0:
-                    throughput = self.requests_cnt / total_elapsed_time
-                else:
-                    throughput = 0
-
-                data = '\n'.join((
-                    "[{}] requests_received = {}".format(self.name, self.requests_cnt),
-                    "[{}] throughput = {}\n".format(self.name, throughput)))
-
-                self.udpss.sendto(bytes(data, "utf-8"), addr)
-
 
             else:
                 logging.info('Unsupported/Invalid query type received from client ' + addr[0])
