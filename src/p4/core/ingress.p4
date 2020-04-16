@@ -34,49 +34,15 @@ control MyIngress(inout headers hdr,
 
 	}
 
-	 /* update the packet header by swapping the source and destination addresses
-	  * and ports in L2-L4 header fields in order to make the packet ready to
-	  * return to the sender (tcp is more subtle than just swapping addresses) */
-	action ret_pkt_to_sender() {
-
-		macAddr_t macTmp;
-		macTmp = hdr.ethernet.srcAddr;
-		hdr.ethernet.srcAddr = hdr.ethernet.dstAddr;
-		hdr.ethernet.dstAddr = macTmp;
-
-		ip4Addr_t ipTmp;
-		ipTmp = hdr.ipv4.srcAddr;
-		hdr.ipv4.srcAddr = hdr.ipv4.dstAddr;
-		hdr.ipv4.dstAddr = ipTmp;
-
-		bit<16> portTmp;
-		if (hdr.udp.isValid()) {
-			portTmp = hdr.udp.srcPort;
-			hdr.udp.srcPort = hdr.udp.dstPort;
-			hdr.udp.dstPort = portTmp;
-		} else if (hdr.tcp.isValid()) {
-			portTmp = hdr.tcp.srcPort;
-			hdr.tcp.srcPort = hdr.tcp.dstPort;
-			hdr.tcp.dstPort = portTmp;
-		}
-
-	}
-
-
 	/* store metadata for a given key to find its values and index it properly */
-	action set_lookup_metadata(vtableBitmap_t vt_bitmap, vtableIdx_t vt_idx, keyIdx_t key_idx) {
-
-		meta.vt_bitmap = vt_bitmap;
-		meta.vt_idx = vt_idx;
-		meta.key_idx = key_idx;
-
+	action set_lookup_metadata() {
+		standard_metadata.egress_spec = CTRL_PORT;
 	}
 
 	/* define cache lookup table */
 	table lookup_table {
-
 		key = {
-			hdr.netcache.key : exact;
+			hdr.gencache.key : exact;
 		}
 
 		actions = {
@@ -84,9 +50,8 @@ control MyIngress(inout headers hdr,
 			NoAction;
 		}
 
-		size = NETCACHE_ENTRIES * NETCACHE_VTABLE_NUM;
+		size = GENCACHE_ENTRIES;
 		default_action = NoAction;
-
 	}
 
 	apply {

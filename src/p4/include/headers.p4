@@ -10,45 +10,32 @@
 #define SKETCH_CELL_BIT_WIDTH 16
 #define SKETCH_IDX_WIDTH 16
 
+#define CTRL_PORT 200
 
-/* netcache size */
-#define NETCACHE_ENTRIES 65536
-
-/* netcache value table constant definitions */
-#define NETCACHE_VTABLE_NUM 8
-#define NETCACHE_VTABLE_SIZE_WIDTH 16
-#define NETCACHE_VTABLE_SLOT_WIDTH 64    // in bits
-
-
-/* minpow2(NETCACHE_ENTRIES * NETCACHE_VTABLE_NUM) */
-#define KEY_IDX_WIDTH 20
-#define MAX_KEYS (NETCACHE_ENTRIES * NETCACHE_VTABLE_NUM)
+/* gencache size */
+#define GENCACHE_ENTRIES 65536
 
 /* maximum number of bits of netcache fields */
-#define NETCACHE_VALUE_WIDTH_MAX 512
-#define NETCACHE_KEY_WIDTH 128
+#define NETCACHE_VALUE_WIDTH_MAX 2048
+#define NETCACHE_KEY_WIDTH 640
 
 /* special reserved port for NetCache */
-const bit<16> NETCACHE_PORT = 50000;
+const bit<16> GENCACHE_PORT = 50000;
 const bit<16> TYPE_IPV4 = 0x800;
 const bit<8> TYPE_TCP = 0x06;
 const bit<8> TYPE_UDP = 0x11;
 
 /* current query supported types */
-const bit<8> READ_QUERY = 0x00;
-const bit<8> WRITE_QUERY = 0x01;
-const bit<8> DELETE_QUERY = 0x02;
-const bit<8> HOT_READ_QUERY= 0x03;
-const bit<8> UPDATE_COMPLETE = 0x04;
-const bit<8> DELETE_COMPLETE = 0x05;
-const bit<8> CACHED_UPDATE = 0x06;
-const bit<8> UPDATE_COMPLETE_OK = 0x07;
+const bit<8> GENCACHE_READ = 0x01;
+const bit<8> GENCACHE_READ_REPLY = 0x02;
+const bit<8> GENCACHE_WRITE = 0x03;
+const bit<8> GENCACHE_WRITE_REPLY = 0x04;
+const bit<8> GENCACHE_DELETE = 0x05;
+const bit<8> GENCACHE_DELETE_REPLY = 0x06;
 
 /* netcache header field types */
 typedef bit<NETCACHE_KEY_WIDTH> key_t;
 typedef bit<NETCACHE_VALUE_WIDTH_MAX> value_t;
-typedef bit<NETCACHE_VTABLE_SIZE_WIDTH> vtableIdx_t;
-typedef bit<NETCACHE_VTABLE_NUM> vtableBitmap_t;
 typedef bit<KEY_IDX_WIDTH> keyIdx_t;
 
 typedef bit<9>  egressSpec_t;
@@ -154,11 +141,10 @@ header udp_t {
 	bit<16> checksum;
 }
 
-
-header netcache_t {
+header gencache_t {
 	bit<8> op;
+	key_t key;
 	bit<32> seq;
-	key_t  key;
 	value_t value;
 }
 
@@ -168,17 +154,9 @@ struct fwd_metadata_t {
 }
 
 struct metadata {
-	vtableBitmap_t vt_bitmap;
-	vtableIdx_t vt_idx;
-
-	bit<BLOOM_IDX_WIDTH> bloom_idx1;
-	bit<BLOOM_IDX_WIDTH> bloom_idx2;
-	bit<BLOOM_IDX_WIDTH> bloom_idx3;
-
 	bit<SKETCH_CELL_BIT_WIDTH> key_cnt;
 
 	keyIdx_t key_idx;
-
 
 	bit<1> hot_query;
 
@@ -187,7 +165,6 @@ struct metadata {
     bool cache_valid;
 
 	bit<16> tcpLength;
-
 }
 
 struct headers {
@@ -198,7 +175,7 @@ struct headers {
     //Tcp_option_stack tcp_options_vec;
     //Tcp_option_padding_h tcp_options_padding;
 	udp_t		 udp;
-	netcache_t   netcache;
+	gencache_t   gencache;
 }
 
 error {

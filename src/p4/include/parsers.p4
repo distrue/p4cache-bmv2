@@ -137,8 +137,8 @@ parser MyParser(packet_in packet, out headers hdr, inout metadata meta,
 		meta.tcpLength = hdr.ipv4.totalLen - 4 * (bit<16>) hdr.ipv4.ihl;
 
 		transition select(hdr.tcp.dataOffset, hdr.tcp.dstPort, hdr.tcp.srcPort) {
-			(5, NETCACHE_PORT, _): parse_netcache;
-			(5, _, NETCACHE_PORT): parse_netcache;
+			(5, GENCACHE_PORT, _): parse_gencache;
+			(5, _, GENCACHE_PORT): parse_gencache;
 			(5, _, _) : accept;
 			default: parse_tcp_options;
 		}
@@ -151,8 +151,8 @@ parser MyParser(packet_in packet, out headers hdr, inout metadata meta,
         bit<16> tcp_payload_len = hdr.ipv4.totalLen - 4 * (bit<16>) hdr.ipv4.ihl - 4 * (bit<16>) hdr.tcp.dataOffset;
         transition select(tcp_payload_len, hdr.tcp.dstPort, hdr.tcp.srcPort) {
 			(0, _, _) : accept;
-			(_, _, NETCACHE_PORT): parse_netcache;
-            (_, NETCACHE_PORT,_): parse_netcache;
+			(_, _, GENCACHE_PORT): parse_gencache;
+            (_, GENCACHE_PORT,_): parse_gencache;
 			default: accept;
 		}
 		*/
@@ -163,8 +163,8 @@ parser MyParser(packet_in packet, out headers hdr, inout metadata meta,
 		packet.extract(hdr.tcp_options, (bit<32>) len);
 
 		transition select (hdr.tcp.dstPort, hdr.tcp.srcPort) {
-			(NETCACHE_PORT, _) : parse_netcache;
-			(_, NETCACHE_PORT) : parse_netcache;
+			(GENCACHE_PORT, _) : parse_gencache;
+			(_, GENCACHE_PORT) : parse_gencache;
 			default: accept;
 		}
 	}
@@ -172,16 +172,16 @@ parser MyParser(packet_in packet, out headers hdr, inout metadata meta,
 	state parse_udp {
 		packet.extract(hdr.udp);
 		transition select(hdr.udp.dstPort, hdr.udp.srcPort) {
-			(NETCACHE_PORT, _) : parse_netcache;
-			(_, NETCACHE_PORT) : parse_netcache;
+			(GENCACHE_PORT, _) : parse_gencache;
+			(_, GENCACHE_PORT) : parse_gencache;
 			default: accept;
 		}
 	}
 
-	state parse_netcache {
+	state parse_gencache {
 		/* TODO #1(dimlek): enforce in some way that write queries are TCP */
 		/* TODO #2(dimlek): decide how many bytes to extract for value field */
-		packet.extract(hdr.netcache);
+		packet.extract(hdr.gencache);
 		transition accept;
 	}
 
@@ -201,10 +201,9 @@ control MyDeparser(packet_out packet, in headers hdr) {
         //packet.emit(hdr.tcp_options_vec);
         //packet.emit(hdr.tcp_options_padding);
 		packet.emit(hdr.udp);
-		packet.emit(hdr.netcache);
+		packet.emit(hdr.gencache);
 
     }
 }
-
 
 #endif     // PARSERS_P4
