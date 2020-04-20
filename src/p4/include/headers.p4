@@ -5,11 +5,6 @@
 #define BLOOM_FILTER_ENTRIES 4096
 #define BLOOM_IDX_WIDTH 12
 
-
-#define SKETCH_BUCKET_LENGTH 65535
-#define SKETCH_CELL_BIT_WIDTH 16
-#define SKETCH_IDX_WIDTH 16
-
 #define CTRL_PORT 200
 
 /* gencache size */
@@ -152,10 +147,6 @@ struct fwd_metadata_t {
 }
 
 struct metadata {
-	bit<SKETCH_CELL_BIT_WIDTH> key_cnt;
-
-	keyIdx_t key_idx;
-
 	bit<1> hot_query;
 
     fwd_metadata_t fwd_metadata;
