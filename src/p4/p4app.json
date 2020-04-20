@@ -1,5 +1,5 @@
 {
-  "program": "core/netcache.p4",
+  "program": "core/gencache.p4",
   "switch": "/home/distrue/bmv2/targets/simple_switch_grpc/simple_switch_grpc",
   "compiler": "p4c",
   "options": "--target bmv2 --arch v1model --std p4-16",
@@ -49,7 +49,7 @@
     },
     "switches": {
       "s1": {
-        "program": "core/netcache.p4",
+        "program": "core/gencache.p4",
 		"cpu_port": true
       }
     }

@@ -10,11 +10,11 @@
 /* gencache size */
 #define GENCACHE_ENTRIES 65536
 
-/* maximum number of bits of netcache fields */
-#define NETCACHE_VALUE_WIDTH_MAX 2048
-#define NETCACHE_KEY_WIDTH 640
+/* maximum number of bits of gencache fields */
+#define GENCACHE_VALUE_WIDTH_MAX 2048
+#define GENCACHE_KEY_WIDTH 640
 
-/* special reserved port for NetCache */
+/* special reserved port for GenCache */
 const bit<16> GENCACHE_PORT = 50000;
 const bit<16> TYPE_IPV4 = 0x800;
 const bit<8> TYPE_TCP = 0x06;
@@ -28,9 +28,9 @@ const bit<8> GENCACHE_WRITE_REPLY = 0x04;
 const bit<8> GENCACHE_DELETE = 0x05;
 const bit<8> GENCACHE_DELETE_REPLY = 0x06;
 
-/* netcache header field types */
-typedef bit<NETCACHE_KEY_WIDTH> key_t;
-typedef bit<NETCACHE_VALUE_WIDTH_MAX> value_t;
+/* gencache header field types */
+typedef bit<GENCACHE_KEY_WIDTH> key_t;
+typedef bit<GENCACHE_VALUE_WIDTH_MAX> value_t;
 
 typedef bit<9>  egressSpec_t;
 typedef bit<48> macAddr_t;

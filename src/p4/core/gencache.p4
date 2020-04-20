@@ -39,9 +39,9 @@ control MyComputeChecksum(inout headers hdr, inout metadata meta) {
                    HashAlgorithm.csum16);
 
         update_checksum(
-            // only update checksum of udp-netcache packets
+            // only update checksum of udp-gencache packets
             // that were created on the switch
-            hdr.udp.isValid() && hdr.netcache.isValid(),
+            hdr.udp.isValid() && hdr.gencache.isValid(),
                 {   hdr.ipv4.srcAddr,
                     hdr.ipv4.dstAddr,
                     8w0,
@@ -50,16 +50,16 @@ control MyComputeChecksum(inout headers hdr, inout metadata meta) {
                     hdr.udp.srcPort,
                     hdr.udp.dstPort,
                     hdr.udp.len,
-                    hdr.netcache.op,
-                    hdr.netcache.seq,
-                    hdr.netcache.key,
-                    hdr.netcache.value },
+                    hdr.gencache.op,
+                    hdr.gencache.seq,
+                    hdr.gencache.key,
+                    hdr.gencache.value },
                     hdr.udp.checksum,
                     HashAlgorithm.csum16);
 
 
 		update_checksum(
-			hdr.tcp.isValid() && hdr.netcache.isValid(),
+			hdr.tcp.isValid() && hdr.gencache.isValid(),
 			{
 				hdr.ipv4.srcAddr,
 				hdr.ipv4.dstAddr,
@@ -83,10 +83,10 @@ control MyComputeChecksum(inout headers hdr, inout metadata meta) {
 				hdr.tcp.window,
 				hdr.tcp.urgentPtr,
 				hdr.tcp_options.options,
-				hdr.netcache.op,
-				hdr.netcache.seq,
-				hdr.netcache.key,
-				hdr.netcache.value
+				hdr.gencache.op,
+				hdr.gencache.seq,
+				hdr.gencache.key,
+				hdr.gencache.value
 			},
 			hdr.tcp.checksum,
 			HashAlgorithm.csum16);
