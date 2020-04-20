@@ -36,7 +36,6 @@ const bit<8> GENCACHE_DELETE_REPLY = 0x06;
 /* netcache header field types */
 typedef bit<NETCACHE_KEY_WIDTH> key_t;
 typedef bit<NETCACHE_VALUE_WIDTH_MAX> value_t;
-typedef bit<KEY_IDX_WIDTH> keyIdx_t;
 
 typedef bit<9>  egressSpec_t;
 typedef bit<48> macAddr_t;
