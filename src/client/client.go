@@ -15,6 +15,8 @@ const GENCACHE_WRITE = 3
 const GENCACHE_WRITE_REPLY = 4
 const GENCACHE_DELETE = 5
 const GENCACHE_DELETE_REPLY = 6
+const GENCACHE_HOT_REPORT = 7    // don't reach to endpoint
+const GENCACHE_HOST_RESPONSE = 8 // don't reach to endpoint
 
 func cache_read(udpconn *net.UDPConn) {
 	read_payload := make([]byte, 85) // 4bit(<1byte) + 640bit(=80byte) + 32bit(=4byte) = 85byte
@@ -61,7 +63,7 @@ func main() {
 	// Multicore Setup
 	runtime.GOMAXPROCS(4)
 
-	conn, ch := net.Dial("tcp", ":8000")
+	conn, ch := net.Dial("tcp", "10.0.0.1:8000")
 	if ch != nil {
 		log.Println(ch)
 	}

@@ -76,6 +76,8 @@ const GENCACHE_WRITE = 3
 const GENCACHE_WRITE_REPLY = 4
 const GENCACHE_DELETE = 5
 const GENCACHE_DELETE_REPLY = 6
+const GENCACHE_HOT_REPORT = 7    // don't reach to endpoint
+const GENCACHE_HOST_RESPONSE = 8 // don't reach to endpoint
 
 func ConnHandler(conn net.Conn, tcp_conn *int32) {
 

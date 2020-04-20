@@ -55,7 +55,6 @@ control MyIngress(inout headers hdr,
 	}
 
 	apply {
-
 		l2_forward.apply();
 	}
 
