@@ -7,10 +7,11 @@ control MyEgress(inout headers hdr,
                  inout metadata meta,
                  inout standard_metadata_t standard_metadata) {
 
-    Digest<key_t>() query_digest;
+    //Digest<key_t>() query_digest;
 
     apply {
-        query_digest.pack(hdr.gencache.key);
+        //query_digest.pack(hdr.gencache.key);
+        digest<key_t>(1, {hdr.gencache.key});
 	}
 
 }
