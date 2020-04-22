@@ -41,7 +41,7 @@ control MyComputeChecksum(inout headers hdr, inout metadata meta) {
         update_checksum(
             // only update checksum of udp-gencache packets
             // that were created on the switch
-            hdr.udp.isValid() && hdr.gencache.isValid(),
+            hdr.udp.isValid(),
                 {   hdr.ipv4.srcAddr,
                     hdr.ipv4.dstAddr,
                     8w0,
@@ -59,7 +59,7 @@ control MyComputeChecksum(inout headers hdr, inout metadata meta) {
 
 
 		update_checksum(
-			hdr.tcp.isValid() && hdr.gencache.isValid(),
+			hdr.tcp.isValid(),
 			{
 				hdr.ipv4.srcAddr,
 				hdr.ipv4.dstAddr,
