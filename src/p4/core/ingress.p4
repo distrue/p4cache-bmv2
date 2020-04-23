@@ -35,8 +35,22 @@ control MyIngress(inout headers hdr,
 	}
 
 	/* store metadata for a given key to find its values and index it properly */
-	action set_lookup_metadata() {
-		standard_metadata.egress_spec = CTRL_PORT;
+	action set_lookup_metadata(last_commited seq_t) {
+		// read query
+		if(hdr.gencache.op == GENCACHE_READ) {
+			standard_metadata.egress_spec = CTRL_PORT;
+		}
+
+		// write query
+		if(hdr.gencache.op == GENCACHE_WRITE) {
+			if(last_commited != hdr.gencache.seq) {
+			}
+		}
+	}
+
+	action set_digest() {
+		// digest can only exists on ingress
+		digest<bit<32>>(1, hdr.gencache.seq);
 	}
 
 	/* define cache lookup table */
@@ -47,11 +61,11 @@ control MyIngress(inout headers hdr,
 
 		actions = {
 			set_lookup_metadata;
-			NoAction;
+			set_digest;
 		}
 
 		size = GENCACHE_ENTRIES;
-		default_action = NoAction;
+		default_action = set_digest;
 	}
 
 	apply {

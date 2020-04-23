@@ -45,57 +45,43 @@ type TCP_CONN struct {
 func (s *Sniffer) workpool() {
 	decodedLayers := []gopacket.LayerType{}
 
+	/*
+		parser_tcp := gopacket.NewDecodingLayerParser(
+			layers.LayerTypeEthernet,
+			&s.eth,
+			&s.ip4,
+			&s.tcp,
+			// &s.udp
+			&s.payload,
+		)*/
+
+	parser_udp := gopacket.NewDecodingLayerParser(
+		layers.LayerTypeEthernet,
+		&s.eth,
+		&s.ip4,
+		// &s.tcp,
+		&s.udp,
+		&s.payload,
+	)
+
+	// go func() {
 	for {
 		select {
 		case packet := <-s.packets:
 			//We are decoding layers, and switching on the layer type
-			err := s.parser.DecodeLayers(packet.Data(), &decodedLayers)
+			err := parser_udp.DecodeLayers(packet.Data(), &decodedLayers)
 			for _, typ := range decodedLayers {
 				switch typ {
 				case layers.LayerTypeIPv4:
 					fmt.Printf("Source ip = %s - Destination ip = %s \n", s.ip4.SrcIP.String(), s.ip4.DstIP.String())
 
-				case layers.LayerTypeTCP:
-					//Here, we can access tcp packet properties
-					fmt.Println("Capture tcp traffic")
-
-					if reflect.DeepEqual(s.ip4.DstIP, net.IP{10, 0, 0, 1}) {
-						conn, exist := s.get_conn(s.tcp_connection, s.ip4.SrcIP)
-						if exist == false {
-							s.add_conn(s.tcp_connection, s.ip4, s.tcp)
-						} else {
-							s.seq_sync(conn, s.tcp.Ack)
-						}
-					}
-
-					if err != nil {
-						fmt.Print(err)
-					}
-
 				case layers.LayerTypeUDP:
 					fmt.Println("Capture udp traffic")
-					buffer := gopacket.NewSerializeBuffer()
-					options := gopacket.SerializeOptions{}
-
-					tmp := s.eth.SrcMAC
-					s.eth.SrcMAC = s.eth.DstMAC
-					s.eth.DstMAC = tmp
-
-					tmp2 := s.ip4.SrcIP
-					s.ip4.SrcIP = s.ip4.DstIP
-					s.ip4.DstIP = tmp2
-
-					tmp3 := s.udp.SrcPort
-					s.udp.SrcPort = s.udp.DstPort
-					s.udp.DstPort = tmp3
-
-					gopacket.SerializeLayers(buffer, options,
-						&s.eth,
-						&s.ip4,
-						&s.udp,
-						gopacket.Payload([]byte("answer")),
-					)
-					err = s.handle.WritePacketData(buffer.Bytes())
+					ans := s.replyPacket("udp", gopacket.Payload([]byte("answer")))
+					err := s.handle.WritePacketData(ans.Bytes())
+					if err != nil {
+						fmt.Println(err)
+					}
 				}
 			}
 
@@ -109,6 +95,50 @@ func (s *Sniffer) workpool() {
 			}
 		}
 	}
+	// }()
+	/*
+		for {
+			select {
+			case packet := <-s.packets:
+				//We are decoding layers, and switching on the layer type
+				err := parser_tcp.DecodeLayers(packet.Data(), &decodedLayers)
+				for _, typ := range decodedLayers {
+					switch typ {
+					case layers.LayerTypeIPv4:
+						fmt.Printf("Source ip = %s - Destination ip = %s \n", s.ip4.SrcIP.String(), s.ip4.DstIP.String())
+
+					case layers.LayerTypeTCP:
+						//Here, we can access tcp packet properties
+						fmt.Println("Capture tcp traffic")
+
+						fmt.Printf("%v %v\n", s.ip4.DstIP, net.IP{10, 0, 0, 1})
+						if reflect.DeepEqual(s.ip4.DstIP, net.IP{10, 0, 0, 1}) {
+							conn, exist := s.get_conn(s.tcp_connection, s.ip4.SrcIP)
+							if exist == false {
+								s.add_conn(s.tcp_connection, s.ip4, s.tcp)
+							} else {
+								s.seq_sync(conn, s.tcp.Ack)
+							}
+						}
+
+						if err != nil {
+							fmt.Print(err)
+						}
+					}
+
+				}
+
+				if len(decodedLayers) == 0 {
+					fmt.Println("Packet truncated")
+				}
+
+				//If the DecodeLayers is unable to decode the next layer type
+				if err != nil {
+					//fmt.Printf("Layer not found : %s", err)
+				}
+			}
+		}
+	*/
 }
 
 func NewSniffer(intf string) Sniffer {
@@ -119,14 +149,6 @@ func NewSniffer(intf string) Sniffer {
 		TCP_N_CONCURRENT:     0,
 		TCP_N_WORKER:         0,
 	}
-	sniffer.parser = gopacket.NewDecodingLayerParser(
-		layers.LayerTypeEthernet,
-		&sniffer.eth,
-		&sniffer.ip4,
-		&sniffer.tcp,
-		&sniffer.udp,
-		&sniffer.payload,
-	)
 
 	handle, err := pcap.OpenLive(intf, 65536, true, pcap.BlockForever)
 	if err != nil {
@@ -135,6 +157,7 @@ func NewSniffer(intf string) Sniffer {
 
 	sniffer.datasource = gopacket.NewPacketSource(handle, layers.LayerTypeEthernet)
 	sniffer.packets = sniffer.datasource.Packets()
+	sniffer.handle = handle
 
 	return sniffer
 }
@@ -213,6 +236,7 @@ func (s *Sniffer) replyPacket(layer4 string, payload gopacket.Payload) gopacket.
 func (s *Sniffer) response(layer4 string, conn TCP_CONN) func(gopacket.Payload) {
 	obj := func(payload gopacket.Payload) {
 		buffer := s.replyPacket(layer4, payload)
+		fmt.Printf("%v\n", buffer.Bytes())
 		err := s.handle.WritePacketData(buffer.Bytes())
 		if err != nil {
 			log.Fatalf("send error")
@@ -238,7 +262,7 @@ func (s *Sniffer) seq_sync(conn TCP_CONN, ack uint32) {
 }
 
 func main() {
-	sniffer := NewSniffer("eth0")
+	sniffer := NewSniffer("server1-eth0")
 	sniffer.TCP_WORKER = func(res func(payload gopacket.Payload), data gopacket.Payload) {
 		fmt.Print(data)
 		res(gopacket.Payload([]byte("answer")))
