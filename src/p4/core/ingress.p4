@@ -13,30 +13,28 @@ control MyIngress(inout headers hdr,
 	register<bit<8>>(CUCKOO_SEQ_ENTRIES) dirtySet4;
 
 	action drop() {
-		mark_to_drop(standard_metadata);
-	}
-
-	action set_egress_port(egressSpec_t port) {
-		standard_metadata.egress_spec = port;
-	}
-
-
-	/* Simple l2 forwarding logic */
-	table l2_forward {
-
-		key = {
-			hdr.ethernet.dstAddr: exact;
-		}
-
-		actions = {
-			set_egress_port;
-			drop;
-		}
-
-		size = 1024;
-		default_action = drop();
-
-	}
+        mark_to_drop(standard_metadata);
+    }
+    
+    action ipv4_forward(macAddr_t dstAddr, egressSpec_t port) {
+        standard_metadata.egress_spec = port;
+        hdr.ethernet.srcAddr = hdr.ethernet.dstAddr;
+        hdr.ethernet.dstAddr = dstAddr;
+        hdr.ipv4.ttl = hdr.ipv4.ttl - 1;
+    }
+    
+    table ipv4_lpm {
+        key = {
+            hdr.ipv4.dstAddr: lpm;
+        }
+        actions = {
+            ipv4_forward;
+            drop;
+            NoAction;
+        }
+        size = 1024;
+        default_action = drop();
+    }
 
 	/* store metadata for a given key to find its values and index it properly */
 	action set_lookup_metadata(bit<32> last_commited) {
