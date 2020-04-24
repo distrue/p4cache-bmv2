@@ -39,79 +39,8 @@ control MyIngress(inout headers hdr,
 	}
 
 	/* store metadata for a given key to find its values and index it properly */
-	action set_lookup_metadata(last_commited seq_t) {
-		// read query
-		if(hdr.gencache.op == GENCACHE_READ) {
-			standard_metadata.egress_spec = CTRL_PORT;
-		}
-
-		// write query
-		if(hdr.gencache.op == GENCACHE_WRITE) {
-			hash(meta.fingerprint, HashAlgorithm.crc8, (bit<1>) 0, { hdr.gencache.seq }, (bit<8>) 256);
-			
-			hash(meta.dirtySet_idx1, HashAlgorithm.crc16, (bit<1>) 0, { hdr.gencache.seq }, (bit<16>) CUCKOO_SEQ_ENTRIES);
-			
-			hash(meta.dirtySet_idx2, HashAlgorithm.crc16, (bit<1>) 0, { hdr.gencache.seq }, (bit<16>) CUCKOO_SEQ_ENTRIES);
-			
-			hash(meta.dirtySet_idx3, HashAlgorithm.crc16, (bit<1>) 0, { hdr.gencache.seq }, (bit<16>) CUCKOO_SEQ_ENTRIES);
-			
-			hash(meta.dirtySet_idx4, HashAlgorithm.crc16, (bit<1>) 0, { hdr.gencache.seq }, (bit<16>) CUCKOO_SEQ_ENTRIES);
-
-			bit<1> val_1;
-			dirtySet1.read(val_1, (bit<16>) meta.dirtySet_idx1);
-			bit<1> val_2;
-			dirtySet1.read(val_2, (bit<16>) meta.dirtySet_idx2);
-			bit<1> val_3;
-			dirtySet1.read(val_3, (bit<16>) meta.dirtySet_idx3);
-			bit<1> val_4;
-			dirtySet1.read(val_4, (bit<16>) meta.dirtySet_idx4);
-			
-			if(!(val_1 == 1 && val_2 == 1 && val_3 == 1 && val_4 == 1)) { // retransmission
-				if(last_commited != hdr.gencache.seq) { // overwritted 
-					// fallback to user
-					// TODO: ingress port, ipv4, ethernet swap
-				} else { // not overwritted
-				 	// send to controller
-					standard_metadata.egress_spec = CTRL_PORT;
-				}
-			}
-			else {
-				// send to controller
-				standard_metadata.egress_spec = CTRL_PORT;
-			}
-		}
-
-		if(hdr.gencache.op == GENCACHE_WRITE_REPLY) {
-			hash(meta.fingerprint, HashAlgorithm.crc8, (bit<1>) 0, { hdr.gencache.seq }, (bit<8>) 256);
-			
-			hash(meta.dirtySet_idx1, HashAlgorithm.crc16, (bit<1>) 0, { hdr.gencache.seq }, (bit<16>) CUCKOO_SEQ_ENTRIES);
-			bit<1> val_1;
-			dirtySet1.read(val_1, meta.dirtySet_idx1);
-			if(val_1 == meta.fingerprint) {
-				dirtySet1.write(meta.dirtySet_idx1, 0);
-			}
-
-			hash(meta.dirtySet_idx2, HashAlgorithm.crc16, (bit<1>) 0, { hdr.gencache.seq }, (bit<16>) CUCKOO_SEQ_ENTRIES);
-			bit<1> val_2;
-			dirtySet1.read(val_2, meta.dirtySet_idx2);
-			if(val_2 == meta.fingerprint) {
-				dirtySet2.write(meta.dirtySet_idx2, 0);
-			}
-
-			hash(meta.dirtySet_idx3, HashAlgorithm.crc16, (bit<1>) 0, { hdr.gencache.seq }, (bit<16>) CUCKOO_SEQ_ENTRIES);
-			bit<1> val_3;
-			dirtySet1.read(val_3, meta.dirtySet_idx3);
-			if(val_3 == meta.fingerprint) {
-				dirtySet3.write(meta.dirtySet_idx3, 0);
-			}
-
-			hash(meta.dirtySet_idx4, HashAlgorithm.crc16, (bit<1>) 0, { hdr.gencache.seq }, (bit<16>) CUCKOO_SEQ_ENTRIES);
-			bit<1> val_4;
-			dirtySet1.read(val_4, meta.dirtySet_idx4);
-			if(val_4 == meta.fingerprint) {
-				dirtySet4.write(meta.dirtySet_idx4, 0);
-			}
-		}
+	action set_lookup_metadata(bit<32> last_commited) {
+		meta.last_commited = last_commited;
 	}
 
 	/* define cache lookup table */
@@ -131,7 +60,83 @@ control MyIngress(inout headers hdr,
 
 	apply {
 		l2_forward.apply();
-		lookup_table.apply();
+		switch(lookup_table.apply().action_run) {
+
+			set_lookup_metadata: {
+				// read query
+				if(hdr.gencache.op == GENCACHE_READ) {
+					standard_metadata.egress_spec = CTRL_PORT;
+				}
+
+				// write query
+				if(hdr.gencache.op == GENCACHE_WRITE) {
+					hash(meta.fingerprint, HashAlgorithm.crc16_custom, (bit<1>) 0, { hdr.gencache.seq }, (bit<16>) 255);
+					
+					hash(meta.dirtySet_idx1, HashAlgorithm.crc32_custom, (bit<1>) 0, { hdr.gencache.seq }, (bit<32>) CUCKOO_SEQ_ENTRIES);
+					
+					hash(meta.dirtySet_idx2, HashAlgorithm.crc32_custom, (bit<1>) 0, { hdr.gencache.seq }, (bit<32>) CUCKOO_SEQ_ENTRIES);
+					
+					hash(meta.dirtySet_idx3, HashAlgorithm.crc32_custom, (bit<1>) 0, { hdr.gencache.seq }, (bit<32>) CUCKOO_SEQ_ENTRIES);
+					
+					hash(meta.dirtySet_idx4, HashAlgorithm.crc32_custom, (bit<1>) 0, { hdr.gencache.seq }, (bit<32>) CUCKOO_SEQ_ENTRIES);
+
+					bit<8> val_1;
+					dirtySet1.read(val_1, (bit<32>) meta.dirtySet_idx1);
+					bit<8> val_2;
+					dirtySet1.read(val_2, (bit<32>) meta.dirtySet_idx2);
+					bit<8> val_3;
+					dirtySet1.read(val_3, (bit<32>) meta.dirtySet_idx3);
+					bit<8> val_4;
+					dirtySet1.read(val_4, (bit<32>) meta.dirtySet_idx4);
+					
+					if(!(val_1 == 1 && val_2 == 1 && val_3 == 1 && val_4 == 1)) { // retransmission
+						if(meta.last_commited != hdr.gencache.seq) { // overwritted 
+							// fallback to user
+							// TODO: ingress port, ipv4, ethernet swap
+						} else { // not overwritted
+							// send to controller
+							standard_metadata.egress_spec = CTRL_PORT;
+						}
+					}
+					else {
+						// send to controller
+						standard_metadata.egress_spec = CTRL_PORT;
+					}
+				}
+
+				if(hdr.gencache.op == GENCACHE_WRITE_REPLY) {
+					hash(meta.fingerprint, HashAlgorithm.crc16_custom, (bit<1>) 0, { hdr.gencache.seq }, (bit<16>) 255);
+					
+					hash(meta.dirtySet_idx1, HashAlgorithm.crc32_custom, (bit<1>) 0, { hdr.gencache.seq }, (bit<32>) CUCKOO_SEQ_ENTRIES);
+					bit<8> val_1;
+					dirtySet1.read(val_1, (bit<32>)meta.dirtySet_idx1);
+					if(val_1 == meta.fingerprint) {
+						dirtySet1.write((bit<32>)meta.dirtySet_idx1, 0);
+					}
+
+					hash(meta.dirtySet_idx2, HashAlgorithm.crc32_custom, (bit<1>) 0, { hdr.gencache.seq }, (bit<32>) CUCKOO_SEQ_ENTRIES);
+					bit<8> val_2;
+					dirtySet1.read(val_2, (bit<32>)meta.dirtySet_idx2);
+					if(val_2 == meta.fingerprint) {
+						dirtySet2.write((bit<32>)meta.dirtySet_idx2, 0);
+					}
+
+					hash(meta.dirtySet_idx3, HashAlgorithm.crc32_custom, (bit<1>) 0, { hdr.gencache.seq }, (bit<32>) CUCKOO_SEQ_ENTRIES);
+					bit<8> val_3;
+					dirtySet1.read(val_3, (bit<32>)meta.dirtySet_idx3);
+					if(val_3 == meta.fingerprint) {
+						dirtySet3.write((bit<32>)meta.dirtySet_idx3, 0);
+					}
+
+					hash(meta.dirtySet_idx4, HashAlgorithm.crc32_custom, (bit<1>) 0, { hdr.gencache.seq }, (bit<32>) CUCKOO_SEQ_ENTRIES);
+					bit<8> val_4;
+					dirtySet1.read(val_4, (bit<32>)meta.dirtySet_idx4);
+					if(val_4 == meta.fingerprint) {
+						dirtySet4.write((bit<32>)meta.dirtySet_idx4, 0);
+					}
+				}
+			}
+		}
 	}
 
 }

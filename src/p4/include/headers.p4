@@ -14,7 +14,7 @@
 /* maximum number of bits of gencache fields */
 #define GENCACHE_VALUE_WIDTH_MAX 2048
 #define GENCACHE_KEY_WIDTH 640
-#define CUCKOO_SEQ_ENTRIES 65536
+#define CUCKOO_SEQ_ENTRIES 65535
 
 /* special reserved port for GenCache */
 const bit<16> GENCACHE_PORT = 50000;
@@ -153,11 +153,12 @@ struct metadata {
 
     fwd_metadata_t fwd_metadata;
 
+    bit<32> last_commited;
     bit<8> fingerprint;
-    bit<16> dirtySet1;
-    bit<16> dirtySet2;
-    bit<16> dirtySet3;
-    bit<16> dirtySet4;
+    bit<16> dirtySet_idx1;
+    bit<16> dirtySet_idx2;
+    bit<16> dirtySet_idx3;
+    bit<16> dirtySet_idx4;
 
 	bit<16> tcpLength;
 }
