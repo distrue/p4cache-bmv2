@@ -7,6 +7,10 @@ control MyIngress(inout headers hdr,
                   inout metadata meta,
                   inout standard_metadata_t standard_metadata) {
 
+	register<bit<8>>(CUCKOO_SEQ_ENTRIES) dirtySet1;
+	register<bit<8>>(CUCKOO_SEQ_ENTRIES) dirtySet2;
+	register<bit<8>>(CUCKOO_SEQ_ENTRIES) dirtySet3;
+	register<bit<8>>(CUCKOO_SEQ_ENTRIES) dirtySet4;
 
 	action drop() {
 		mark_to_drop(standard_metadata);
@@ -43,14 +47,71 @@ control MyIngress(inout headers hdr,
 
 		// write query
 		if(hdr.gencache.op == GENCACHE_WRITE) {
-			if(last_commited != hdr.gencache.seq) {
+			hash(meta.fingerprint, HashAlgorithm.crc8, (bit<1>) 0, { hdr.gencache.seq }, (bit<8>) 256);
+			
+			hash(meta.dirtySet_idx1, HashAlgorithm.crc16, (bit<1>) 0, { hdr.gencache.seq }, (bit<16>) CUCKOO_SEQ_ENTRIES);
+			
+			hash(meta.dirtySet_idx2, HashAlgorithm.crc16, (bit<1>) 0, { hdr.gencache.seq }, (bit<16>) CUCKOO_SEQ_ENTRIES);
+			
+			hash(meta.dirtySet_idx3, HashAlgorithm.crc16, (bit<1>) 0, { hdr.gencache.seq }, (bit<16>) CUCKOO_SEQ_ENTRIES);
+			
+			hash(meta.dirtySet_idx4, HashAlgorithm.crc16, (bit<1>) 0, { hdr.gencache.seq }, (bit<16>) CUCKOO_SEQ_ENTRIES);
+
+			bit<1> val_1;
+			dirtySet1.read(val_1, (bit<16>) meta.dirtySet_idx1);
+			bit<1> val_2;
+			dirtySet1.read(val_2, (bit<16>) meta.dirtySet_idx2);
+			bit<1> val_3;
+			dirtySet1.read(val_3, (bit<16>) meta.dirtySet_idx3);
+			bit<1> val_4;
+			dirtySet1.read(val_4, (bit<16>) meta.dirtySet_idx4);
+			
+			if(!(val_1 == 1 && val_2 == 1 && val_3 == 1 && val_4 == 1)) { // retransmission
+				if(last_commited != hdr.gencache.seq) { // overwritted 
+					// fallback to user
+					// TODO: ingress port, ipv4, ethernet swap
+				} else { // not overwritted
+				 	// send to controller
+					standard_metadata.egress_spec = CTRL_PORT;
+				}
+			}
+			else {
+				// send to controller
+				standard_metadata.egress_spec = CTRL_PORT;
 			}
 		}
-	}
 
-	action set_digest() {
-		// digest can only exists on ingress
-		digest<bit<32>>(1, hdr.gencache.seq);
+		if(hdr.gencache.op == GENCACHE_WRITE_REPLY) {
+			hash(meta.fingerprint, HashAlgorithm.crc8, (bit<1>) 0, { hdr.gencache.seq }, (bit<8>) 256);
+			
+			hash(meta.dirtySet_idx1, HashAlgorithm.crc16, (bit<1>) 0, { hdr.gencache.seq }, (bit<16>) CUCKOO_SEQ_ENTRIES);
+			bit<1> val_1;
+			dirtySet1.read(val_1, meta.dirtySet_idx1);
+			if(val_1 == meta.fingerprint) {
+				dirtySet1.write(meta.dirtySet_idx1, 0);
+			}
+
+			hash(meta.dirtySet_idx2, HashAlgorithm.crc16, (bit<1>) 0, { hdr.gencache.seq }, (bit<16>) CUCKOO_SEQ_ENTRIES);
+			bit<1> val_2;
+			dirtySet1.read(val_2, meta.dirtySet_idx2);
+			if(val_2 == meta.fingerprint) {
+				dirtySet2.write(meta.dirtySet_idx2, 0);
+			}
+
+			hash(meta.dirtySet_idx3, HashAlgorithm.crc16, (bit<1>) 0, { hdr.gencache.seq }, (bit<16>) CUCKOO_SEQ_ENTRIES);
+			bit<1> val_3;
+			dirtySet1.read(val_3, meta.dirtySet_idx3);
+			if(val_3 == meta.fingerprint) {
+				dirtySet3.write(meta.dirtySet_idx3, 0);
+			}
+
+			hash(meta.dirtySet_idx4, HashAlgorithm.crc16, (bit<1>) 0, { hdr.gencache.seq }, (bit<16>) CUCKOO_SEQ_ENTRIES);
+			bit<1> val_4;
+			dirtySet1.read(val_4, meta.dirtySet_idx4);
+			if(val_4 == meta.fingerprint) {
+				dirtySet4.write(meta.dirtySet_idx4, 0);
+			}
+		}
 	}
 
 	/* define cache lookup table */
@@ -61,15 +122,16 @@ control MyIngress(inout headers hdr,
 
 		actions = {
 			set_lookup_metadata;
-			set_digest;
+			NoAction;
 		}
 
 		size = GENCACHE_ENTRIES;
-		default_action = set_digest;
+		default_action = NoAction;
 	}
 
 	apply {
 		l2_forward.apply();
+		lookup_table.apply();
 	}
 
 }

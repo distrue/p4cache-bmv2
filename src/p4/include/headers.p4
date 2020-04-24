@@ -8,11 +8,13 @@
 #define CTRL_PORT 200
 
 /* gencache size */
+// have to check table max width, 65536 is to small!
 #define GENCACHE_ENTRIES 65536
 
 /* maximum number of bits of gencache fields */
 #define GENCACHE_VALUE_WIDTH_MAX 2048
 #define GENCACHE_KEY_WIDTH 640
+#define CUCKOO_SEQ_ENTRIES 65536
 
 /* special reserved port for GenCache */
 const bit<16> GENCACHE_PORT = 50000;
@@ -151,7 +153,11 @@ struct metadata {
 
     fwd_metadata_t fwd_metadata;
 
-    bool cache_valid;
+    bit<8> fingerprint;
+    bit<16> dirtySet1;
+    bit<16> dirtySet2;
+    bit<16> dirtySet3;
+    bit<16> dirtySet4;
 
 	bit<16> tcpLength;
 }
