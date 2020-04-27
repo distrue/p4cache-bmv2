@@ -1,4 +1,4 @@
-module github.com/distrue/gencache/client
+module github.com/distrue/gencache
 
 go 1.13
 

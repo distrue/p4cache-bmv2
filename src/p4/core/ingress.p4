@@ -57,7 +57,7 @@ control MyIngress(inout headers hdr,
 	}
 
 	apply {
-		l2_forward.apply();
+		ipv4_lpm.apply();
 		switch(lookup_table.apply().action_run) {
 
 			set_lookup_metadata: {
