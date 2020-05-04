@@ -13,8 +13,9 @@
 
 /* maximum number of bits of gencache fields */
 #define GENCACHE_VALUE_WIDTH_MAX 2048
-#define GENCACHE_KEY_WIDTH 640
-#define CUCKOO_SEQ_ENTRIES 65535
+#define GENCACHE_KEY_WIDTH 32
+#define KEY_ENTRIES 65535
+#define DIRTYSET_ENTRIES 65535
 
 /* special reserved port for GenCache */
 const bit<16> GENCACHE_PORT = 50000;
@@ -29,6 +30,12 @@ const bit<8> GENCACHE_WRITE = 0x03;
 const bit<8> GENCACHE_WRITE_REPLY = 0x04;
 const bit<8> GENCACHE_DELETE = 0x05;
 const bit<8> GENCACHE_DELETE_REPLY = 0x06;
+const bit<8> GENCACHE_WRITE_CACHE = 0x07;
+const bit<8> GENCACHE_DELETE_CACHE = 0x08;
+const bit<8> GENCACHE_ADDCACHE_REPORT = 0x09;
+const bit<8> GENCACHE_ADDCACHE_REQ = 0x10;
+const bit<8> GENCACHE_ADDCACHE_FETCH = 0x11;
+const bit<8> GENCACHE_ADDCACHE_EVICT = 0x12;
 
 /* gencache header field types */
 typedef bit<GENCACHE_KEY_WIDTH> key_t;
@@ -153,12 +160,11 @@ struct metadata {
 
     fwd_metadata_t fwd_metadata;
 
-    bit<32> last_commited;
-    bit<8> fingerprint;
-    bit<16> dirtySet_idx1;
-    bit<16> dirtySet_idx2;
-    bit<16> dirtySet_idx3;
-    bit<16> dirtySet_idx4;
+    bit<32> lcommit;
+    bit<32> dsetidx1;
+    bit<32> dsetidx2;
+    bit<32> dsetidx3;
+    bit<32> dsetidx4;
 
 	bit<16> tcpLength;
 }

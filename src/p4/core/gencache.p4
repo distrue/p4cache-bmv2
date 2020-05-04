@@ -39,8 +39,6 @@ control MyComputeChecksum(inout headers hdr, inout metadata meta) {
                    HashAlgorithm.csum16);
 
         update_checksum(
-            // only update checksum of udp-gencache packets
-            // that were created on the switch
             hdr.udp.isValid(),
                 {   hdr.ipv4.srcAddr,
                     hdr.ipv4.dstAddr,
