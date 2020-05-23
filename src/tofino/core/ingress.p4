@@ -1,7 +1,14 @@
-#include <core.p4>
-#include <v1model.p4>
+#include "tofino/stateful_alu_blackbox.p4"
+#include "tofino/pktgen_headers.p4"
+#include <tofino/constants.p4>
+#include <tofino/intrinsic_metadata.p4>
 
 #include "../include/headers.p4"
+
+Hash<bit<16>>(HashAlgorithm_t.CRC32) hash_1;
+Hash<bit<16>>(HashAlgorithm_t.CRC32) hash_2;
+Hash<bit<16>>(HashAlgorithm_t.CRC32) hash_3;
+Hash<bit<16>>(HashAlgorithm_t.CRC32) hash_4;
 
 control MyIngress(inout headers hdr,
                   inout metadata meta,
@@ -204,15 +211,11 @@ control MyIngress(inout headers hdr,
 					{ hdr.gencache.key }, (bit<16>) DIRTYSET_ENTRIES);
 			last_commit.write((bit<32>)0, meta.lcommit);
 
-			hash(meta.dsetidx1, HashAlgorithm.crc32_custom, (bit<1>) 0,
-			{ hdr.gencache.key }, (bit<16>) DIRTYSET_ENTRIES);
-			hash(meta.dsetidx2, HashAlgorithm.crc32_custom, (bit<1>) 0,
-			{ hdr.gencache.key }, (bit<16>) DIRTYSET_ENTRIES);
-			hash(meta.dsetidx3, HashAlgorithm.crc32_custom, (bit<1>) 0,
-			{ hdr.gencache.key }, (bit<16>) DIRTYSET_ENTRIES);
-			hash(meta.dsetidx4, HashAlgorithm.crc32_custom, (bit<1>) 0,
-			{ hdr.gencache.key }, (bit<16>) DIRTYSET_ENTRIES);
-			
+			meta.dsetidx1 = hash_1.get({hdr.gencache.key});
+			meta.dsetidx2 = hash_2.get({hdr.gencache.key});
+			meta.dsetidx3 = hash_3.get({hdr.gencache.key});
+			meta.dsetidx4 = hash_4.get({hdr.gencache.key});
+						
 			dirtyset1.write(hdr.gencache.seq, meta.dsetidx1);
 			dirtyset2.write(hdr.gencache.seq, meta.dsetidx2);
 			dirtyset3.write(hdr.gencache.seq, meta.dsetidx3);
