@@ -132,8 +132,8 @@ control MyIngress(inout headers hdr,
 
 		if(hdr.gencache.op == GENCACHE_WRITE_REPLY || hdr.gencache.op == GENCACHE_DELETE_REPLY || hdr.gencache.op == GENCACHE_ADDCACHE_EVICT) {
 			if(hdr.gencache.op == GENCACHE_DELETE_REPLY || hdr.gencache.op == GENCACHE_ADDCACHE_EVICT) {
-				lookup1.write( 0, hdr.gencache.key);
-				lookup2.write( 0, hdr.gencache.key);
+				// lookup1.write( 0, (bit<16>)hdr.gencache.key);
+				// lookup2.write( 0, (bit<16>)hdr.gencache.key);
 
 				hash(meta.lcommit, HashAlgorithm.crc32_custom, (bit<1>) 0,
 					{ hdr.gencache.key }, (bit<16>) DIRTYSET_ENTRIES);
@@ -197,8 +197,8 @@ control MyIngress(inout headers hdr,
 		// --> already set to CTRL_PORT
 
 		if(hdr.gencache.op == GENCACHE_ADDCACHE_FETCH) {
-			lookup1.write( 1, hdr.gencache.key);
-			lookup2.write( 1, hdr.gencache.key);				
+			// lookup1.write( 1,(bit<16>) hdr.gencache.key);
+			// lookup2.write( 1,(bit<16>) hdr.gencache.key);				
 			
 			hash(meta.lcommit, HashAlgorithm.crc32_custom, (bit<1>) 0,
 					{ hdr.gencache.key }, (bit<16>) DIRTYSET_ENTRIES);
