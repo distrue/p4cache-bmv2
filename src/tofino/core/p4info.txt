@@ -1,0 +1,67 @@
+pkg_info {
+  arch: "v1model"
+}
+tables {
+  preamble {
+    id: 33616955
+    name: "MyIngress.l2_forward"
+    alias: "l2_forward"
+  }
+  match_fields {
+    id: 1
+    name: "hdr.ethernet.dstAddr"
+    bitwidth: 48
+    match_type: EXACT
+  }
+  action_refs {
+    id: 16777697
+  }
+  action_refs {
+    id: 16805608
+  }
+  size: 1024
+}
+actions {
+  preamble {
+    id: 16805608
+    name: "MyIngress.drop"
+    alias: "drop"
+  }
+}
+actions {
+  preamble {
+    id: 16777697
+    name: "MyIngress.set_egress_port"
+    alias: "set_egress_port"
+  }
+  params {
+    id: 1
+    name: "port"
+    bitwidth: 9
+  }
+}
+controller_packet_metadata {
+  preamble {
+    id: 67111538
+    name: "packet_in"
+    alias: "packet_in"
+    annotations: "@controller_header(\"packet_in\")"
+  }
+  metadata {
+    id: 1
+    name: "dstAddr"
+    bitwidth: 48
+  }
+  metadata {
+    id: 2
+    name: "srcAddr"
+    bitwidth: 48
+  }
+  metadata {
+    id: 3
+    name: "etherType"
+    bitwidth: 16
+  }
+}
+type_info {
+}
