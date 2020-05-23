@@ -49,7 +49,7 @@ control MyIngress(inout headers hdr,
 	bit<32> seq_dset4;
 	bit<1> write_ctrl;
 	bit<1> write_retms;
-	bit<32> tmpEth;
+	bit<48> tmpEth;
 
 	apply {
 		ipv4_lpm.apply();
