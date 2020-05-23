@@ -7,8 +7,8 @@ control MyIngress(inout headers hdr,
                   inout metadata meta,
                   inout standard_metadata_t standard_metadata) {
 
-	register<bit<16>>(KEY_ENTRIES) lookup1;
-	register<bit<16>>(KEY_ENTRIES) lookup2;
+	register<bit<32>>(KEY_ENTRIES) lookup1;
+	register<bit<32>>(KEY_ENTRIES) lookup2;
 	register<bit<32>>(KEY_ENTRIES) last_commit;
 	register<bit<32>>(DIRTYSET_ENTRIES) dirtyset1;
 	register<bit<32>>(DIRTYSET_ENTRIES) dirtyset2;
