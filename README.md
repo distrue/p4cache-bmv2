@@ -1,4 +1,5 @@
-## Memory Effective in-network caching (MeCache)
+## GenCache (previous version of research)
 
-We implement Memory Effective in-network caching (MeCache) based on NetCache implementation of [ETH Zurich](https://nsg.ee.ethz.ch/home/).
+* For security reasons, the recent study version is closed.
+* based on NetCache implementation of [ETH Zurich](https://nsg.ee.ethz.ch/home/).
 * [Forked repository](https://github.com/dlekkas/netcache)
